@@ -13,4 +13,6 @@ jobs:
   vuln:
     uses: fredrikaverpil/github/.github/workflows/go-vuln.yml@main
     secrets: inherit
-
+  lint:
+    uses: fredrikaverpil/github/.github/workflows/go-lint.yml@main
+    secrets: inherit
