@@ -44,7 +44,7 @@ func LoadFromFile(path string) (*JobConfig, error) {
 	}
 
 	var cfg JobConfig
-	if err := yaml.Unmarshal(data, &cfg); err != nil {
+	if err = yaml.Unmarshal(data, &cfg); err != nil {
 		return nil, err
 	}
 

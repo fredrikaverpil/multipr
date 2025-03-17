@@ -64,13 +64,13 @@ func (r *Repo) CheckoutDefaultBranch() error {
 		return fmt.Errorf("failed to get default branch: %w", err)
 	}
 	defaultBranch := result.Stdout
-	if err := r.executor.GitFetchAll(r.LocalPath()); err != nil {
+	if err = r.executor.GitFetchAll(r.LocalPath()); err != nil {
 		return err
 	}
-	if err := r.executor.GitCheckout(r.LocalPath(), defaultBranch); err != nil {
+	if err = r.executor.GitCheckout(r.LocalPath(), defaultBranch); err != nil {
 		return err
 	}
-	if err := r.executor.GitResetHard(r.LocalPath(), defaultBranch); err != nil {
+	if err = r.executor.GitResetHard(r.LocalPath(), defaultBranch); err != nil {
 		return err
 	}
 
