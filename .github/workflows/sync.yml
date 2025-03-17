@@ -57,7 +57,7 @@ jobs:
 
           # Copy common workflows
           cp central/templates/common/pr.yml repo/.github/workflows/pr.yml
-          cp central/templates/common/dependabot.yml repo/.github/dependabot.yml
+          # cp central/templates/common/dependabot.yml repo/.github/dependabot.yml
 
           # Copy sync workflow itself (self-update)
           cp central/templates/sync/sync.yml repo/.github/workflows/sync.yml
