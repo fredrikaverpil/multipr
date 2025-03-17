@@ -2,7 +2,7 @@
 
 Create (and update) pull requests en masse.
 
-> [!WARN]
+> [!WARNING]
 >
 > This is alpha/beta quality software and breaking changes might occur at any
 > time!
