@@ -1,0 +1,21 @@
+name: sync-workflows
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch-name:
+        description: 'branch name for the PR'
+        required: false
+        default: 'chore/update-workflows'
+      pr-title:
+        description: 'PR title'
+        required: false
+        default: 'chore: update workflows from central repo'
+
+jobs:
+  sync:
+    name: sync workflows
+    uses: fredrikaverpil/github/.github/workflows/sync-runner.yml@main
+    with:
+      branch-name: ${{ inputs.branch-name }}
+      pr-title: ${{ inputs.pr-title }
