@@ -26,10 +26,15 @@ package command
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/google/shlex"
+)
+
+const (
+	apiRequestDelay = 100 * time.Millisecond
 )
 
 // Search the GitHub API for code.
@@ -96,8 +101,8 @@ func (e *Executor) GHAPISearchCode(query string) ([]string, error) {
 			} `json:"items"`
 		}
 
-		if err := json.Unmarshal([]byte(result.Stdout), &response); err != nil {
-			return nil, fmt.Errorf("failed to parse API response: %w", err)
+		if unmarshalErr := json.Unmarshal([]byte(result.Stdout), &response); unmarshalErr != nil {
+			return nil, fmt.Errorf("failed to parse API response: %w", unmarshalErr)
 		}
 
 		// Add repositories to the unique set
@@ -119,7 +124,7 @@ func (e *Executor) GHAPISearchCode(query string) ([]string, error) {
 		}
 
 		// GitHub has rate limits, so add a small delay to avoid hitting them
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(apiRequestDelay)
 	}
 
 	// Convert the unique set to a slice
@@ -147,7 +152,7 @@ func (e *Executor) GHSearchCode(query string, limit int) ([]string, error) {
 		"search",
 		"code",
 		"--json", "repository",
-		"--limit", fmt.Sprintf("%d", limit),
+		"--limit", strconv.Itoa(limit),
 	}
 	args = append(args, queryArgs...)
 
@@ -166,8 +171,8 @@ func (e *Executor) GHSearchCode(query string, limit int) ([]string, error) {
 		} `json:"repository"`
 	}
 
-	if err := json.Unmarshal([]byte(result.Stdout), &response); err != nil {
-		return nil, fmt.Errorf("failed to parse search response: %w", err)
+	if jsonErr := json.Unmarshal([]byte(result.Stdout), &response); jsonErr != nil {
+		return nil, fmt.Errorf("failed to parse search response: %w", jsonErr)
 	}
 
 	// Extract unique repository names

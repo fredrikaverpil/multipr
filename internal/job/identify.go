@@ -32,40 +32,18 @@ func (m *Manager) identifyEligibleRepos(reposDir string) ([]*git.Repo, error) {
 
 	for _, repo := range repos {
 		m.pool.Submit(func() {
-			if err := repo.CheckoutDefaultBranch(); err != nil {
+			eligible, checkoutErr := m.isRepoEligible(repo)
+			if checkoutErr != nil {
 				mu.Lock()
-				errs = append(errs, fmt.Errorf("failed to checkout default branch for %s: %w", repo.LocalPath(), err))
+				errs = append(errs, checkoutErr)
 				mu.Unlock()
-				return // Skip this repository
+				return
 			}
 
-			// Try each identification command
-			for _, identify := range m.config.Identify {
-				if m.options.Debug {
-					m.log.Debug(fmt.Sprintf("Running identification command '%s' on %s\n", identify.Name, repo.LocalPath()))
-				}
-
-				// Run identification command
-				result, err := m.exec.ExecuteWithShell(identify.Cmd, command.WithDir(repo.LocalPath()))
-				if err != nil {
-					if result == nil {
-						mu.Lock()
-						errs = append(
-							errs,
-							fmt.Errorf("identification command '%s' failed for %s: %w", identify.Name, repo.LocalPath(), err),
-						)
-						mu.Unlock()
-						continue
-					}
-				}
-
-				// Check if eligible (exit code 0)
-				if result.ExitCode == 0 {
-					mu.Lock()
-					eligibleRepos = append(eligibleRepos, repo)
-					mu.Unlock()
-					return // Repository is eligible, no need to check other commands
-				}
+			if eligible {
+				mu.Lock()
+				eligibleRepos = append(eligibleRepos, repo)
+				mu.Unlock()
 			}
 		})
 	}
@@ -76,51 +54,122 @@ func (m *Manager) identifyEligibleRepos(reposDir string) ([]*git.Repo, error) {
 		return eligibleRepos, errors.Join(errs...)
 	}
 
+	m.logEligibleRepos(eligibleRepos)
+	return eligibleRepos, nil
+}
+
+// isRepoEligible checks if a repository is eligible based on identification commands.
+func (m *Manager) isRepoEligible(repo *git.Repo) (bool, error) {
+	checkoutErr := repo.CheckoutDefaultBranch()
+	if checkoutErr != nil {
+		return false, fmt.Errorf("failed to checkout default branch for %s: %w", repo.LocalPath(), checkoutErr)
+	}
+
+	// Try each identification command
+	for _, identify := range m.config.Identify {
+		if m.options.Debug {
+			m.log.Debug(fmt.Sprintf("Running identification command '%s' on %s\n", identify.Name, repo.LocalPath()))
+		}
+
+		// Run identification command
+		result, cmdErr := m.exec.ExecuteWithShell(identify.Cmd, command.WithDir(repo.LocalPath()))
+		if cmdErr != nil {
+			if result == nil {
+				return false, fmt.Errorf("identification command '%s' failed for %s: %w", identify.Name, repo.LocalPath(), cmdErr)
+			}
+			continue
+		}
+
+		// Check if eligible (exit code 0)
+		if result.ExitCode == 0 {
+			return true, nil // Repository is eligible
+		}
+	}
+
+	return false, nil
+}
+
+// logEligibleRepos logs information about eligible repositories.
+func (m *Manager) logEligibleRepos(eligibleRepos []*git.Repo) {
 	m.log.Info(fmt.Sprintf("Found %d eligible repositories", len(eligibleRepos)))
 	for _, repo := range eligibleRepos {
 		m.log.Info(fmt.Sprintf("  - %s", repo.String()))
 	}
-
-	return eligibleRepos, nil
 }
 
 // FIXME: move into git/repo.go?
 func rebuildRepos(reposDir string, executor *command.Executor, log *log.Logger) ([]*git.Repo, error) {
 	var repos []*git.Repo
-	hosts, err := os.ReadDir(reposDir)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read directory %s: %w", reposDir, err)
+
+	hosts, readErr := os.ReadDir(reposDir)
+	if readErr != nil {
+		return nil, fmt.Errorf("failed to read directory %s: %w", reposDir, readErr)
 	}
+
 	for _, host := range hosts {
 		if !host.IsDir() {
 			continue
 		}
-		var fullNames []string
-		usernames, err := os.ReadDir(filepath.Join(reposDir, host.Name()))
-		if err != nil {
-			return nil, fmt.Errorf("failed to read directory %s: %w", reposDir, err)
-		}
-		for _, username := range usernames {
-			if !username.IsDir() {
-				continue
-			}
-			projects, err := os.ReadDir(filepath.Join(reposDir, host.Name(), username.Name()))
-			if err != nil {
-				return nil, fmt.Errorf("failed to read directory %s: %w", username.Name(), err)
-			}
-			for _, project := range projects {
-				if !project.IsDir() {
-					continue
-				}
-				fullNames = append(fullNames, fmt.Sprintf("%s/%s", username.Name(), project.Name()))
-			}
+
+		hostRepos, hostErr := processHostDir(reposDir, host.Name(), executor, log)
+		if hostErr != nil {
+			return nil, hostErr
 		}
 
-		for _, fullName := range fullNames {
-			repo := git.NewRepo(host.Name(), fullName, reposDir, executor, log)
-			repos = append(repos, repo)
-		}
+		repos = append(repos, hostRepos...)
 	}
 
 	return repos, nil
+}
+
+// processHostDir processes a host directory and returns repositories.
+func processHostDir(reposDir, hostName string, executor *command.Executor, log *log.Logger) ([]*git.Repo, error) {
+	var repos []*git.Repo
+	var fullNames []string
+
+	hostPath := filepath.Join(reposDir, hostName)
+	usernames, readErr := os.ReadDir(hostPath)
+	if readErr != nil {
+		return nil, fmt.Errorf("failed to read directory %s: %w", hostPath, readErr)
+	}
+
+	for _, username := range usernames {
+		if !username.IsDir() {
+			continue
+		}
+
+		userFullNames, userErr := getUserProjects(reposDir, hostName, username.Name())
+		if userErr != nil {
+			return nil, userErr
+		}
+
+		fullNames = append(fullNames, userFullNames...)
+	}
+
+	for _, fullName := range fullNames {
+		repo := git.NewRepo(hostName, fullName, reposDir, executor, log)
+		repos = append(repos, repo)
+	}
+
+	return repos, nil
+}
+
+// getUserProjects gets a list of project full names for a user.
+func getUserProjects(reposDir, hostName, userName string) ([]string, error) {
+	var fullNames []string
+
+	userPath := filepath.Join(reposDir, hostName, userName)
+	projects, readErr := os.ReadDir(userPath)
+	if readErr != nil {
+		return nil, fmt.Errorf("failed to read directory %s: %w", userPath, readErr)
+	}
+
+	for _, project := range projects {
+		if !project.IsDir() {
+			continue
+		}
+		fullNames = append(fullNames, fmt.Sprintf("%s/%s", userName, project.Name()))
+	}
+
+	return fullNames, nil
 }

@@ -21,11 +21,11 @@ func NewCustomTextHandler(w io.Writer, level slog.Level) *CustomTextHandler {
 	}
 }
 
-func (h *CustomTextHandler) Enabled(ctx context.Context, level slog.Level) bool {
+func (h *CustomTextHandler) Enabled(_ context.Context, level slog.Level) bool {
 	return level >= h.level
 }
 
-func (h *CustomTextHandler) Handle(ctx context.Context, r slog.Record) error {
+func (h *CustomTextHandler) Handle(_ context.Context, r slog.Record) error {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
@@ -34,6 +34,8 @@ func (h *CustomTextHandler) Handle(ctx context.Context, r slog.Record) error {
 	switch r.Level {
 	case slog.LevelDebug:
 		msg = fmt.Sprintf("[multipr:DEBUG] %s\n", r.Message)
+	case slog.LevelInfo:
+		msg = fmt.Sprintf("[multipr] %s\n", r.Message)
 	case slog.LevelWarn:
 		msg = fmt.Sprintf("[multipr:WARN] %s\n", r.Message)
 	case slog.LevelError:
@@ -46,12 +48,12 @@ func (h *CustomTextHandler) Handle(ctx context.Context, r slog.Record) error {
 	return err
 }
 
-func (h *CustomTextHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+func (h *CustomTextHandler) WithAttrs(_ []slog.Attr) slog.Handler {
 	// Ignore attributes in the custom format
 	return h
 }
 
-func (h *CustomTextHandler) WithGroup(name string) slog.Handler {
+func (h *CustomTextHandler) WithGroup(_ string) slog.Handler {
 	// Ignore groups in the custom format
 	return h
 }
