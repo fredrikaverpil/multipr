@@ -3,10 +3,6 @@ name: sync-workflows
 on:
   workflow_dispatch:
     inputs:
-      branch-name:
-        description: 'branch name for the PR'
-        required: false
-        default: 'chore/update-workflows'
       pr-title:
         description: 'PR title'
         required: false
@@ -14,8 +10,97 @@ on:
 
 jobs:
   sync:
-    name: sync workflows
-    uses: fredrikaverpil/github/.github/workflows/sync-runner.yml@main
-    with:
-      branch-name: ${{ inputs.branch-name }}
-      pr-title: ${{ inputs.pr-title }}
+    name: Sync Workflows
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current repository
+        uses: actions/checkout@v4
+        with:
+          path: repo
+
+      - name: Checkout central repository
+        uses: actions/checkout@v4
+        with:
+          repository: fredrikaverpil/github
+          path: central
+
+      - name: Detect project types
+        id: detect
+        working-directory: repo
+        run: |
+          # Go detection
+          if [ -f "go.mod" ]; then
+            echo "go_detected=true" >> $GITHUB_OUTPUT
+          else
+            echo "go_detected=false" >> $GITHUB_OUTPUT
+          fi
+
+          # Python detection
+          if [ -f "pyproject.toml" ] || [ -f "setup.py" ] || [ -f "requirements.txt" ]; then
+            echo "python_detected=true" >> $GITHUB_OUTPUT
+          else
+            echo "python_detected=false" >> $GITHUB_OUTPUT
+          fi
+
+          # Lua detection
+          if ls *.lua 1> /dev/null 2>&1 || [ -f ".luacheckrc" ]; then
+            echo "lua_detected=true" >> $GITHUB_OUTPUT
+          else
+            echo "lua_detected=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Sync workflows
+        run: |
+          # Create directories if they don't exist
+          mkdir -p repo/.github/workflows
+          mkdir -p repo/.github/actions
+
+          # Copy common workflows
+          cp central/templates/common/pr.yml repo/.github/workflows/pr.yml
+          cp central/templates/common/dependabot.yml repo/.github/dependabot.yml
+
+          # Copy sync workflow itself (self-update)
+          cp central/templates/sync/sync.yml repo/.github/workflows/sync.yml
+
+          # Copy Go workflows if needed
+          if [[ "${{ steps.detect.outputs.go_detected }}" == "true" ]]; then
+            echo "Adding Go workflows..."
+            cp central/templates/go/workflow.yml repo/.github/workflows/go.yml
+            cp central/.github/workflows/go-lint.yml repo/.github/workflows/go-lint.yml
+            cp central/.github/workflows/go-vuln.yml repo/.github/workflows/go-vuln.yml
+
+            # Create golangci-lint action directory
+            mkdir -p repo/.github/actions/golangci-lint
+            cp central/.github/actions/golangci-lint/action.yml repo/.github/actions/golangci-lint/action.yml
+            cp central/.github/actions/golangci-lint/.golangci.yml repo/.github/actions/golangci-lint/.golangci.yml
+          fi
+
+          # Copy Python workflows if needed
+          if [[ "${{ steps.detect.outputs.python_detected }}" == "true" ]]; then
+            echo "Adding Python workflows..."
+            cp central/templates/python/workflow.yml repo/.github/workflows/python.yml
+          fi
+
+          # Copy Lua workflows if needed
+          if [[ "${{ steps.detect.outputs.lua_detected }}" == "true" ]]; then
+            echo "Adding Lua workflows..."
+            cp central/templates/lua/workflow.yml repo/.github/workflows/lua.yml
+          fi
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          path: repo
+          commit-message: "${{ inputs.pr-title }}"
+          title: "${{ inputs.pr-title }}"
+          body: |
+            This PR updates the GitHub workflows from the central repository.
+
+            Project types detected:
+            - Go: ${{ steps.detect.outputs.go_detected }}
+            - Python: ${{ steps.detect.outputs.python_detected }}
+            - Lua: ${{ steps.detect.outputs.lua_detected }}
+
+            Automated by the sync-workflows action.
+          branch: chore/update-workflows
+          delete-branch: true
