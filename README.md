@@ -59,8 +59,9 @@ pr:
 >
 > - For search syntax, consult the
 >   [GitHub CLI `search code` docs](https://cli.github.com/manual/gh_search_code).
-> - The `shell` command field is optional and defaults to `bash` or whatever you
->   specify with CLI argument `-shell`. Will execute like `<shell> -c <cmd>`.
+> - The `shell` command field is optional, can be set to some other shell on a
+>   per-command basis and defaults to `bash` (or whatever you specify with CLI
+>   argument `-shell`). Will execute like `<shell> -c <cmd>`.
 > - On macOS, the default `sed` implementation is BSD-based and incompatible
 >   with GNU `sed` syntax used in the examples. You can install GNU `sed` with
 >   `brew install gnu-sed` and use it as `gsed` in your commands.
