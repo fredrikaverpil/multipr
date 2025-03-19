@@ -35,7 +35,14 @@ func (e *Executor) GitResetHard(dir, branch string) error {
 }
 
 func (e *Executor) GitDiff(dir string) error {
-	_, err := e.Execute("git", []string{"diff", "--color=always", "--cached"}, WithDir(dir), WithTee())
+	e.outputMutex.Lock()
+	defer e.outputMutex.Unlock()
+
+	_, err := e.Execute("pwd", []string{}, WithDir(dir), WithTee())
+	if err != nil {
+		return fmt.Errorf("failed to show pwd: %w", err)
+	}
+	_, err = e.Execute("git", []string{"diff", "--color=always", "--cached"}, WithDir(dir), WithTee())
 	if err != nil {
 		return fmt.Errorf("failed to show diff: %w", err)
 	}

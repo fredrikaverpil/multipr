@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"sync"
 
 	"github.com/fredrikaverpil/multipr/internal/log"
 )
@@ -20,8 +21,9 @@ type Result struct {
 }
 
 type Executor struct {
-	log   *log.Logger
-	debug bool
+	log         *log.Logger
+	debug       bool
+	outputMutex sync.Mutex
 }
 
 func NewExecutor(logger *log.Logger, debug bool) *Executor {
