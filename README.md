@@ -4,8 +4,10 @@ Create (and update) pull requests en masse.
 
 > [!WARNING]
 >
-> This is alpha/beta quality software and breaking changes might occur at any
-> time!
+> - This is alpha/beta quality software and breaking changes might occur at any
+>   time!
+> - I've developed and used `multipr` on macOS only, so your mileage may vary on
+>   other platforms. Open an issue if you encounter any problems! 😅✌️
 
 ## Requirements
 
