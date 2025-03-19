@@ -38,7 +38,7 @@ type Command struct {
 
 // LoadFromFile loads a Config from a YAML file path.
 func LoadFromFile(path string) (*JobConfig, error) {
-	data, err := os.ReadFile(path)
+	data, err := os.ReadFile(path) // #nosec G304 -- path is trusted input
 	if err != nil {
 		return nil, err
 	}
