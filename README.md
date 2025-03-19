@@ -16,7 +16,7 @@ following, which are therefore expected to exist locally:
 
 - `bash` (can be configured with CLI argument `-shell`)
 - `git`
-- [GitHub CLI](https://cli.github.com/) (and authenticated)
+- `gh` (authenticated [GitHub CLI](https://cli.github.com/))
 
 ## Quickstart
 
