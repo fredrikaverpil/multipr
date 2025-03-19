@@ -15,7 +15,6 @@ Create (and update) pull requests en masse.
 following, which are therefore expected to exist locally:
 
 - `bash` (can be configured with CLI argument `-shell`)
-- `sed`
 - `git`
 - [GitHub CLI](https://cli.github.com/) (and authenticated)
 
