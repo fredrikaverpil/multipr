@@ -55,16 +55,21 @@ func (r *Repo) Clone() error {
 
 // CheckoutDefaultBranch checks out the default branch and resets it.
 func (r *Repo) CheckoutDefaultBranch() error {
-	// TODO: a bit hacky, maybe it can be done better...
-	result, err := r.executor.ExecuteWithShell(
-		"git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'",
-		"",
+	// Use git symbolic-ref to get the default branch reference
+	result, err := r.executor.Execute(
+		"git",
+		[]string{"symbolic-ref", "refs/remotes/origin/HEAD"},
 		command.WithDir(r.LocalPath()),
 	)
 	if err != nil {
 		return fmt.Errorf("failed to get default branch: %w", err)
 	}
-	defaultBranch := result.Stdout
+
+	// Extract just the branch name from the full reference path
+	// Input example: "refs/remotes/origin/main"
+	refPath := strings.TrimSpace(result.Stdout)
+	defaultBranch := strings.TrimPrefix(refPath, "refs/remotes/origin/")
+
 	if err = r.executor.GitFetchAll(r.LocalPath()); err != nil {
 		return err
 	}
