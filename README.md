@@ -57,6 +57,8 @@ pr:
 
 > [!NOTE]
 >
+> - For search syntax, consult the
+>   [GitHub CLI `search code` docs](https://cli.github.com/manual/gh_search_code).
 > - The `shell` command field is optional and defaults to `bash` or whatever you
 >   specify with CLI argument `-shell`. Will execute like `<shell> -c <cmd>`.
 > - On macOS, the default `sed` implementation is BSD-based and incompatible
@@ -125,11 +127,6 @@ Usage of multipr:
    - Perform code changes via user-defined shell commands.
    - Create user-defined git commit.
    - Create (or edit existing) pull request via `gh pr [create|edit]`.
-
-## Help, troubleshooting
-
-- For search syntax, consult the
-  [GitHub CLI `search code` docs](https://cli.github.com/manual/gh_search_code).
 
 ## Development and contribution
 
