@@ -143,4 +143,3 @@ Contributions are very welcome!
 - [ ] Releases, tags.
 - [ ] Tests.
 - [ ] CI stuff like linting, formatting, vulnerability checks etc.
-- [ ] Potentially detect default branch without requiring `sed`.
