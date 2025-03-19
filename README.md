@@ -143,3 +143,7 @@ Contributions are very welcome!
 - [ ] Releases, tags.
 - [ ] Tests.
 - [ ] CI stuff like linting, formatting, vulnerability checks etc.
+
+## Similar projects
+
+- [mani](https://github.com/alajmo/mani) - a CLI tool that helps you manage multiple repositories.
