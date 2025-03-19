@@ -11,10 +11,12 @@ Create (and update) pull requests en masse.
 
 ## Requirements
 
-- Go
-- Bash
-- sed
-- Git
+`multipr` will run sub-commands in the shell. It will internally call the
+following, which are therefore expected to exist locally:
+
+- `bash` (can be configured with CLI argument `-shell`)
+- `sed`
+- `git`
 - [GitHub CLI](https://cli.github.com/) (and authenticated)
 
 ## Quickstart
@@ -33,10 +35,12 @@ search:
     query: --owner myorg --filename CODEOWNERS "my team"
 identify:
   - name: Find daily interval
+    shell: bash # optional
     cmd: |
       rg --hidden 'interval: daily' -g dependabot.yml
 changes:
   - name: Update dependabot schedule
+    shell: bash # optional
     cmd: sed -i 's/daily/weekly/g' .github/dependabot.yml
 pr:
   github:
@@ -51,6 +55,14 @@ pr:
       ### Notes
       - This PR was generated with [multipr](https://github.com/fredrikaverpil/multipr)
 ```
+
+> [!NOTE]
+>
+> - The `shell` command field is optional and defaults to `bash` or whatever you
+>   specify with CLI argument `-shell`. Will execute like `<shell> -c <cmd>`.
+> - On macOS, the default `sed` implementation is BSD-based and incompatible
+>   with GNU `sed` syntax used in the examples. You can install GNU `sed` with
+>   `brew install gnu-sed` and use it as `gsed` in your commands.
 
 ```sh
 # carefully perform manual review of each step

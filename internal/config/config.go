@@ -17,15 +17,9 @@ type JobConfig struct {
 		} `yaml:"github"`
 	} `yaml:"search"`
 
-	Identify []struct {
-		Name string `yaml:"name"`
-		Cmd  string `yaml:"cmd"`
-	} `yaml:"identify"`
+	Identify []Command `yaml:"identify"`
 
-	Changes []struct {
-		Name string `yaml:"name"`
-		Cmd  string `yaml:"cmd"`
-	} `yaml:"changes"`
+	Changes []Command `yaml:"changes"`
 
 	PR struct {
 		GitHub struct {
@@ -34,6 +28,12 @@ type JobConfig struct {
 			Branch string `yaml:"branch"`
 		} `yaml:"github"`
 	} `yaml:"pr"`
+}
+
+type Command struct {
+	Name  string `yaml:"name"`
+	Cmd   string `yaml:"cmd"`
+	Shell string `yaml:"shell,omitempty"`
 }
 
 // LoadFromFile loads a Config from a YAML file path.

@@ -48,7 +48,7 @@ func (m *Manager) processRepository(repo *git.Repo) error {
 // applyChanges applies all configured changes to a repository.
 func (m *Manager) applyChanges(repo *git.Repo) error {
 	for _, change := range m.config.Changes {
-		_, err := m.exec.ExecuteWithShell(change.Cmd, command.WithDir(repo.LocalPath()))
+		_, err := m.exec.ExecuteWithShell(change.Cmd, change.Shell, command.WithDir(repo.LocalPath()))
 		if err != nil {
 			return fmt.Errorf("failed to apply change '%s' to %s: %w", change.Name, repo.LocalPath(), err)
 		}

@@ -85,7 +85,7 @@ func (m *Manager) updateExistingPR(repo *git.Repo, prNumber string) error {
 		draftCmd = fmt.Sprintf("gh pr ready %s", prNumber)
 	}
 
-	_, err = m.exec.ExecuteWithShell(draftCmd, command.WithDir(repo.LocalPath()))
+	_, err = m.exec.ExecuteWithShell(draftCmd, "", command.WithDir(repo.LocalPath()))
 	if err != nil {
 		return fmt.Errorf("failed to update PR draft status for %s: %w", repo.LocalPath(), err)
 	}

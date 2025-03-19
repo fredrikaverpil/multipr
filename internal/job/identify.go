@@ -72,7 +72,7 @@ func (m *Manager) isRepoEligible(repo *git.Repo) (bool, error) {
 		}
 
 		// Run identification command
-		result, cmdErr := m.exec.ExecuteWithShell(identify.Cmd, command.WithDir(repo.LocalPath()))
+		result, cmdErr := m.exec.ExecuteWithShell(identify.Cmd, identify.Shell, command.WithDir(repo.LocalPath()))
 		if cmdErr != nil {
 			if result == nil {
 				return false, fmt.Errorf("identification command '%s' failed for %s: %w", identify.Name, repo.LocalPath(), cmdErr)

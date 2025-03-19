@@ -24,6 +24,7 @@ func main() {
 	showDiffs := flag.Bool("show-diffs", true, "Show each git diff")
 	skipSearch := flag.Bool("skip-search", false, "Skip search for repositories")
 	workers := flag.Int("workers", 0, "Number of workers to use for concurrency (default: 2x CPU cores)")
+	shell := flag.String("shell", "bash", "Shell to use for executing commands")
 
 	flag.Parse()
 
@@ -58,6 +59,7 @@ func main() {
 		ManualCommit: *manualCommit,
 		Publish:      *publish,
 		ReviewSteps:  *reviewSteps,
+		Shell:        *shell,
 		ShowDiffs:    *showDiffs,
 		SkipSearch:   *skipSearch,
 		Workers:      *workers,

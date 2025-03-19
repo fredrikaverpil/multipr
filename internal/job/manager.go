@@ -24,6 +24,7 @@ type CLIOptions struct {
 	ManualCommit bool
 	Publish      bool
 	ReviewSteps  bool
+	Shell        string
 	ShowDiffs    bool
 	SkipSearch   bool
 	Workers      int
@@ -63,7 +64,7 @@ func NewManager(config *config.JobConfig, opts *CLIOptions, jobFilePath string) 
 		return nil, fmt.Errorf("failed to create logger: %w", err)
 	}
 	logger.Debug("Config loaded: %v", config)
-	exec := command.NewExecutor(logger, opts.Debug)
+	exec := command.NewExecutor(opts.Debug, opts.Shell, logger)
 	pool := worker.NewWorkerPool(opts.Workers)
 
 	return &Manager{
