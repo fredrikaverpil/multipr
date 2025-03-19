@@ -14,7 +14,6 @@ Create (and update) pull requests en masse.
 - sed
 - Git
 - [GitHub CLI](https://cli.github.com/) (and authenticated)
-- (optionally) `rg`, `sed` as specified by the user
 
 ## Quickstart
 
@@ -99,15 +98,17 @@ Usage of multipr:
 
 ## How `multipr` works
 
-1. A GitHub `gh search code` query is the base for cloning down git repositories
-   to local disk.
-1. A local identification phase (using e.g. `rg`) decides which of the cloned
-   down repositories are eligible for modification (exit code 0 means eligible).
+1. A user-defined GitHub `gh search code` query is the base for cloning down git
+   repositories to local disk.
+1. Git repositories are cloned down into a `$(pwd)/jobs` folder.
+1. A user-defined local identification phase (using e.g. `rg`) decides which of
+   the cloned down repositories are eligible for modification (exit code 0 means
+   eligible).
 1. For each eligible repository:
    - Fetch all, reset hard and checkout the default branch.
-   - Check out a new branch.
-   - Perform code changes via custom shell commands.
-   - Create git commit.
+   - Check out a new user-defined branch.
+   - Perform code changes via user-defined shell commands.
+   - Create user-defined git commit.
    - Create (or edit existing) pull request via `gh pr [create|edit]`.
 
 ## Help, troubleshooting
