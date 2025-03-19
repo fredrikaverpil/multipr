@@ -18,7 +18,7 @@ jobs:
       - name: create pull request
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.SYNC_WORKFLOW_TOKEN }}
+          token: ${{ secrets.SYNC_TOKEN }}
           commit-message: "ci(workflows): sync with fredrikaverpil/github"
           title: "ci(workflows): sync with fredrikaverpil/github"
           body: |
