@@ -10,7 +10,7 @@ on:
     - cron: "0 8 * * 1" # Monday at 8am
 
 jobs:
-  lint:
+  ci:
     uses: fredrikaverpil/github/.github/workflows/go.yml@main
     with:
       config-source: golden-latest
