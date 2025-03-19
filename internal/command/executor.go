@@ -21,17 +21,21 @@ type Result struct {
 }
 
 type Executor struct {
-	log         *log.Logger
-	debug       bool
-	outputMutex sync.Mutex
+	debug        bool
+	defaultShell string
+	log          *log.Logger
+	outputMutex  sync.Mutex
 }
 
-func NewExecutor(logger *log.Logger, debug bool) *Executor {
-	return &Executor{log: logger, debug: debug}
+func NewExecutor(debug bool, defaultShell string, logger *log.Logger) *Executor {
+	return &Executor{debug: debug, defaultShell: defaultShell, log: logger}
 }
 
-func (e *Executor) ExecuteWithShell(command string, opts ...Option) (*Result, error) {
-	cmd := exec.Command("bash", "-c", command)
+func (e *Executor) ExecuteWithShell(command, shell string, opts ...Option) (*Result, error) {
+	if shell == "" {
+		shell = e.defaultShell
+	}
+	cmd := exec.Command(shell, "-c", command)
 	return e.execute(cmd, opts...)
 }
 

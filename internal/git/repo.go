@@ -58,6 +58,7 @@ func (r *Repo) CheckoutDefaultBranch() error {
 	// TODO: a bit hacky, maybe it can be done better...
 	result, err := r.executor.ExecuteWithShell(
 		"git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'",
+		"",
 		command.WithDir(r.LocalPath()),
 	)
 	if err != nil {
@@ -89,10 +90,9 @@ func (r *Repo) CheckoutNewBranch(branchName string) error {
 // CheckPRExists checks if a PR already exists for the given branch.
 func (r *Repo) CheckPRExists(branchName string) (bool, string, error) {
 	result, err := r.executor.ExecuteWithShell(
-		fmt.Sprintf(
-			"gh pr list --head %s --json number --jq '.[0].number'",
-			branchName,
-		), command.WithDir(r.LocalPath()))
+		fmt.Sprintf("gh pr list --head %s --json number --jq '.[0].number'", branchName),
+		"",
+		command.WithDir(r.LocalPath()))
 	if err != nil {
 		return false, "", fmt.Errorf("failed to check for existing PR: %w", err)
 	}
