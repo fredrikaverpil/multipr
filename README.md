@@ -96,6 +96,8 @@ Usage of multipr:
         Publish PRs
   -review
         Manual review of each major step
+  -shell string
+        Shell to use for executing commands (default "bash")
   -show-diffs
         Show each git diff (default true)
   -skip-search
