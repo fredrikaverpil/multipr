@@ -48,9 +48,9 @@ pr:
     body: |
       ## Update dependabot interval
       ### Why?
-      It's too noisy with a daily interval.
+      It's too noisy with a daily interval
       ### What?
-      - Update schedule to weekly interval.
+      - Update schedule to weekly interval
       ### Notes
       - This PR was generated with [multipr](https://github.com/fredrikaverpil/multipr)
 ```
