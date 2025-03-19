@@ -13,8 +13,7 @@ jobs:
       - name: checkout repo
         uses: actions/checkout@v4
       - name: run sync-workflows action
-        id: sync
-        uses: fredrikaverpil/github/.github/actions/sync-workflows@main
+        uses: fredrikaverpil/github/.github/actions/sync-workflows@find-dirs-with-python
       - name: create pull request
         uses: peter-evans/create-pull-request@v7
         with:
@@ -23,7 +22,5 @@ jobs:
           title: "ci(workflows): sync with fredrikaverpil/github"
           body: |
             This PR syncs the GitHub repo with CI workflows from the [fredrikaverpil/github](https://github.com/fredrikaverpil/github) repository.
-
-            Project types detected: ${{ steps.sync.outputs.types }}
           branch: ci/sync-workflows
           delete-branch: true
