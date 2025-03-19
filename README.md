@@ -140,6 +140,5 @@ Contributions are very welcome!
 
 ## Similar projects
 
-- [mani](https://github.com/alajmo/mani) - a CLI tool that helps you manage multiple repositories.
+- [mani](https://github.com/alajmo/mani)
 - [remote-find-replace](https://github.com/einride/remote-find-replace)
-
