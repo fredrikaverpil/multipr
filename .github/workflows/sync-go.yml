@@ -11,6 +11,6 @@ jobs:
   ci:
     uses: fredrikaverpil/github/.github/workflows/go.yml@main
     with:
-      go-versions: '["1.24", "stable"]' # rc versions are defined like 1.24.0-rc.3
+      go-versions: '["1.24"]' # rc versions are defined like 1.24.0-rc.3
       os-versions: '["ubuntu-latest"]'
       golangci-config-source: golden-latest
