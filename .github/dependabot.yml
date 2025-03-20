@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: "gomod"
     directories:
       - /
-      - tools/go.mod
+      - /tools
     schedule:
       interval: "monthly"
     groups:
