@@ -14,5 +14,5 @@ permissions:
 
 jobs:
   title:
-    uses: fredrikaverpil/github/reusable-workflows/pr.yml@main
+    uses: fredrikaverpil/github/.github/workflows/pr.yml@main
     secrets: inherit
