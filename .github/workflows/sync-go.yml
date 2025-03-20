@@ -1,4 +1,4 @@
-name: ci
+name: go
 
 on:
   workflow_dispatch:
@@ -6,11 +6,9 @@ on:
   push:
     branches:
       - main
-  schedule:
-    - cron: "0 8 * * 1" # Monday at 8am
 
 jobs:
-  go:
+  ci:
     uses: fredrikaverpil/github/.github/workflows/go.yml@main
     with:
       config-source: golden-latest
