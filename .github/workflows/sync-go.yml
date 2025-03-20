@@ -9,6 +9,6 @@ on:
 
 jobs:
   ci:
-    uses: fredrikaverpil/github/.github/workflows/go.yml@main
+    uses: fredrikaverpil/github/reusable-workflows/go.yml@main
     with:
       config-source: golden-latest
