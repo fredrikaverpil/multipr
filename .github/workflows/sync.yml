@@ -13,7 +13,7 @@ jobs:
       - name: checkout repo
         uses: actions/checkout@v4
       - name: run sync-workflows action
-        uses: fredrikaverpil/github/.github/composite-actions/sync-workflows@main
+        uses: fredrikaverpil/github/composite-actions/sync-workflows@main
       - name: create pull request
         uses: peter-evans/create-pull-request@v7
         with:
