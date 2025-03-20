@@ -103,7 +103,6 @@ require (
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hexops/gotextdiff v1.0.3 // indirect
-	github.com/hpcloud/tail v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jgautheron/goconst v1.7.1 // indirect
 	github.com/jingyugao/rowserrcheck v1.1.1 // indirect
@@ -221,6 +220,7 @@ require (
 	golang.org/x/text v0.23.0 // indirect
 	golang.org/x/time v0.10.0 // indirect
 	golang.org/x/tools v0.31.0 // indirect
+	golang.org/x/tools/gopls v0.18.1 // indirect
 	golang.org/x/vuln v1.1.4 // indirect
 	google.golang.org/api v0.223.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20241209162323-e6fa225c2576 // indirect
@@ -228,13 +228,12 @@ require (
 	google.golang.org/grpc v1.70.0 // indirect
 	google.golang.org/protobuf v1.36.5 // indirect
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6 // indirect
-	gopkg.in/fsnotify.v1 v1.4.7 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
-	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	honnef.co/go/tools v0.6.1 // indirect
 	mvdan.cc/gofumpt v0.7.0 // indirect
 	mvdan.cc/unparam v0.0.0-20240528143540-8a5130ca722f // indirect
+	mvdan.cc/xurls/v2 v2.5.0 // indirect
 )
 
 tool (
@@ -243,6 +242,7 @@ tool (
 	github.com/securego/gosec/v2/cmd/gosec
 	github.com/segmentio/golines
 	golang.org/x/tools/cmd/goimports
+	golang.org/x/tools/gopls
 	golang.org/x/vuln/cmd/govulncheck
 	mvdan.cc/gofumpt
 )
