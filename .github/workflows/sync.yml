@@ -11,6 +11,9 @@ jobs:
     outputs:
       matrix: ${{ steps.find-dirs.outputs.matrix }}
     steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+
       - name: find project directories
         id: find-dirs
         uses: fredrikaverpil/github/.github/actions/find-dirs@main
