@@ -34,7 +34,7 @@ tasks:
       - '{{ .GO_TOOL_CMD }} gci write --skip-generated --skip-vendor -s standard -s default .'
       - '{{ .GO_TOOL_CMD }} gofumpt'
       - '{{ .GO_TOOL_CMD }} golines --ignore-generated --tab-len=1 --max-len=120 --write-output .'
-      - '{{ .GO_TOOL_CMD }} git diff --exit-code'
+      - git diff --exit-code
 
   govulncheck:
     desc: Check vulnerabilities with govulncheck
