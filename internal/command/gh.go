@@ -190,6 +190,53 @@ func (e *Executor) GHSearchCode(query string, limit int) ([]string, error) {
 	return fullNames, nil
 }
 
+// GHSearchRepos searches for repositories using the GitHub CLI.
+func (e *Executor) GHSearchRepos(query string, limit int) ([]string, error) {
+	if limit <= 0 {
+		limit = 1000 // Default to max allowed by GitHub CLI
+	}
+
+	// Parse the query string as shell arguments
+	queryArgs, err := shlex.Split(query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse query: %w", err)
+	}
+
+	// Build arguments for gh search repos command
+	args := []string{
+		"search",
+		"repos",
+		"--json", "fullName",
+		"--limit", strconv.Itoa(limit),
+	}
+	args = append(args, queryArgs...)
+
+	e.log.Debug(fmt.Sprintf("Executing: gh %s", strings.Join(args, " ")))
+
+	// Execute the search command
+	result, err := e.Execute("gh", args)
+	if err != nil {
+		return nil, fmt.Errorf("failed to search repositories: %w", err)
+	}
+
+	// Parse the JSON response
+	var response []struct {
+		FullName string `json:"fullName"`
+	}
+
+	if jsonErr := json.Unmarshal([]byte(result.Stdout), &response); jsonErr != nil {
+		return nil, fmt.Errorf("failed to parse search response: %w", jsonErr)
+	}
+
+	// Extract repository names
+	fullNames := make([]string, 0, len(response))
+	for _, item := range response {
+		fullNames = append(fullNames, item.FullName)
+	}
+
+	return fullNames, nil
+}
+
 // Clone repo using gh, expects repo to be in the format "owner/repo".
 func (e *Executor) GHClone(repo, path string) error {
 	_, err := e.Execute("gh", []string{"repo", "clone", repo, path})
