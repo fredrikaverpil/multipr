@@ -30,7 +30,7 @@ go install github.com/fredrikaverpil/multipr/cmd/multipr@latest
 
 search:
   github:
-    method: code
+    method: code # methods available: code | repos
     query: --owner myorg --filename CODEOWNERS "my team"
 identify:
   - name: Find daily interval
@@ -58,7 +58,9 @@ pr:
 > [!NOTE]
 >
 > - For search syntax, consult the
->   [GitHub CLI `search code` docs](https://cli.github.com/manual/gh_search_code).
+>   [GitHub CLI `gh search code` docs](https://cli.github.com/manual/gh_search_code).
+> - For repository search syntax, consult the
+>   > [GitHub CLI `gh search repos` docs](https://cli.github.com/manual/gh_search_repos).
 > - The `shell` command field is optional, can be set to some other shell on a
 >   per-command basis and defaults to `bash` (or whatever you specify with CLI
 >   argument `-shell`). Will execute like `<shell> -c <cmd>`.

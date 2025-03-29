@@ -25,8 +25,8 @@ func (m *Manager) searchRepositories() ([]*git.Repo, error) {
 		switch method {
 		case "code":
 			fullNames, err = m.exec.GHSearchCode(query, 0)
-		// Can add more methods later like:
-		// case "repos", "api", etc.
+		case "repos":
+			fullNames, err = m.exec.GHSearchRepos(query, 0)
 		default:
 			return nil, fmt.Errorf("unsupported GitHub search method: %s", method)
 		}
