@@ -37,7 +37,7 @@ const (
 	apiRequestDelay = 100 * time.Millisecond
 )
 
-// Search the GitHub API for code.
+// GHAPISearchCode searches the GitHub API for code.
 func (e *Executor) GHAPISearchCode(query string) ([]string, error) {
 	uniqueRepos := make(map[string]struct{})
 	page := 1
@@ -237,7 +237,7 @@ func (e *Executor) GHSearchRepos(query string, limit int) ([]string, error) {
 	return fullNames, nil
 }
 
-// Clone repo using gh, expects repo to be in the format "owner/repo".
+// GHClone clones the repo using gh, expects repo to be in the format "owner/repo".
 func (e *Executor) GHClone(repo, path string) error {
 	_, err := e.Execute("gh", []string{"repo", "clone", repo, path})
 	if err != nil {
