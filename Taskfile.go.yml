@@ -22,21 +22,20 @@ tasks:
     cmds:
       - task -t Taskfile.go.yml --list
 
-  golangci-lint:
-    desc: Lint with golangci-lint
-    aliaes: ["lint"]
-    cmds:
-      - '{{ .GO_TOOL_CMD }} golangci-lint run -v ./...'
-
   format:
     desc: Format with goimports, gci, gofumpt and golines
-    aliases: ["lint"]
     cmds:
       - '{{ .GO_TOOL_CMD }} goimports -w .'
       - '{{ .GO_TOOL_CMD }} gci write --skip-generated --skip-vendor -s standard -s default .'
       - '{{ .GO_TOOL_CMD }} gofumpt -extra -w .'
       - '{{ .GO_TOOL_CMD }} golines --ignore-generated --tab-len=1 --max-len=120 --write-output .'
       - git diff --color=always --exit-code
+
+  golangci-lint:
+    desc: Lint with golangci-lint
+    aliases: ["lint"]
+    cmds:
+      - '{{ .GO_TOOL_CMD }} golangci-lint run -v ./...'
 
   govulncheck:
     desc: Check vulnerabilities with govulncheck
