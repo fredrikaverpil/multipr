@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/fredrikaverpil/multipr/compare/v1.1.0...v1.2.0) (2025-04-11)
+
+
+### Features
+
+* add goreleaser ([#57](https://github.com/fredrikaverpil/multipr/issues/57)) ([77254ae](https://github.com/fredrikaverpil/multipr/commit/77254aedd1b619176ac767b7de9384af6c018d82))
+
 ## [1.1.0](https://github.com/fredrikaverpil/multipr/compare/v1.0.0...v1.1.0) (2025-03-29)
 
 
