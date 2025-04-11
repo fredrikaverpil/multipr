@@ -1,7 +1,11 @@
 version: 2
 
+project_name: multipr
+
 builds:
-  - env:
+  - main: ./cmd/multipr/
+    binary: multipr
+    env:
       - CGO_ENABLED=0
     goos:
       - linux
