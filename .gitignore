@@ -1,1 +1,4 @@
 jobs
+
+# goreleaser
+dist/
