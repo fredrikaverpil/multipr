@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/fredrikaverpil/multipr/compare/v1.2.1...v1.2.2) (2025-04-12)
+
+
+### Bug Fixes
+
+* typo ([#63](https://github.com/fredrikaverpil/multipr/issues/63)) ([fe8a8c3](https://github.com/fredrikaverpil/multipr/commit/fe8a8c3637c4971e4e0a3166e9b7c15c6378dd78))
+
 ## [1.2.1](https://github.com/fredrikaverpil/multipr/compare/v1.2.0...v1.2.1) (2025-04-11)
 
 
