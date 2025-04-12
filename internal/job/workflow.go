@@ -139,7 +139,7 @@ func (m *Manager) handlePublishing(processedRepos []*git.Repo) error {
 
 func (m *Manager) logJobCompletion() {
 	if !m.options.Publish {
-		m.log.Info("☂️ To publish PRs, use the --publish flag")
+		m.log.Info("☂️ To publish PRs, use the -publish flag")
 	} else {
 		m.log.Info("🚀 PRs published successfully!")
 	}
