@@ -20,10 +20,16 @@ following, which are therefore expected to exist locally:
 
 ## Quickstart
 
+Download the `multipr` binary from the
+[releases](https://github.com/fredrikaverpil/multipr/releases) or install it
+with Go:
+
 ```sh
 # install
 go install github.com/fredrikaverpil/multipr/cmd/multipr@latest
 ```
+
+Create a `job.yml` file:
 
 ```yml
 # job.yml
@@ -68,6 +74,8 @@ pr:
 >   with GNU `sed` syntax used in the examples. You can install GNU `sed` with
 >   `brew install gnu-sed` and use it as `gsed` in your commands.
 
+Run `multipr`:
+
 ```sh
 # carefully perform manual review of each step
 multipr -job job.yml -review
@@ -81,6 +89,8 @@ multipr -job job.yml -publish -draft
 # update PRs, making them ready for review
 multipr -job job.yml -publish
 ```
+
+## Usage
 
 ```text
 Usage of multipr:
