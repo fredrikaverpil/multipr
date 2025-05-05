@@ -15,21 +15,7 @@ updates:
       - "dependencies"
 
   - package-ecosystem: "gomod"
-    directories: ["./tools"]
-    allow:
-      - dependency-type: indirect
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      go-tools:
-        patterns: ["*"]
-    labels:
-      - "dependencies"
-
-  - package-ecosystem: "gomod"
-    directories:
-      - .
+    directories: ["."]
     schedule:
       interval: "weekly"
       day: "monday"
