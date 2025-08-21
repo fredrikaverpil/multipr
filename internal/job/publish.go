@@ -3,7 +3,9 @@ package job
 import (
 	"errors"
 	"fmt"
+	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/fredrikaverpil/multipr/internal/command"
@@ -67,9 +69,11 @@ func (m *Manager) updateExistingPR(repo *git.Repo, prNumber string) error {
 	repoName := filepath.Base(repo.LocalPath())
 	m.log.Info(fmt.Sprintf("Editing existing PR #%s for %s", prNumber, repoName))
 
+	processedBody := m.processBodyTemplate(m.config.PR.GitHub.Body)
+
 	_, err := m.exec.Execute(
 		"gh",
-		[]string{"pr", "edit", prNumber, "--title", m.config.PR.GitHub.Title, "--body", m.config.PR.GitHub.Body},
+		[]string{"pr", "edit", prNumber, "--title", m.config.PR.GitHub.Title, "--body", processedBody},
 		command.WithDir(repo.LocalPath()),
 	)
 	if err != nil {
@@ -97,6 +101,8 @@ func (m *Manager) createNewPR(repo *git.Repo) error {
 	repoName := filepath.Base(repo.LocalPath())
 	m.log.Info(fmt.Sprintf("Creating PR for %s", repoName))
 
+	processedBody := m.processBodyTemplate(m.config.PR.GitHub.Body)
+
 	args := []string{
 		"pr",
 		"create",
@@ -105,7 +111,7 @@ func (m *Manager) createNewPR(repo *git.Repo) error {
 		"--title",
 		m.config.PR.GitHub.Title,
 		"--body",
-		m.config.PR.GitHub.Body,
+		processedBody,
 	}
 
 	if m.options.Draft {
@@ -118,4 +124,22 @@ func (m *Manager) createNewPR(repo *git.Repo) error {
 	}
 
 	return nil
+}
+
+// processBodyTemplate replaces {yaml} placeholder with the job YAML content.
+func (m *Manager) processBodyTemplate(body string) string {
+	if !strings.Contains(body, "{yaml}") {
+		return body
+	}
+
+	// Read the original job file
+	yamlContent, err := os.ReadFile(m.jobFilePath)
+	if err != nil {
+		m.log.Debug("Failed to read job file for template replacement: %v", err)
+		return body
+	}
+
+	// Replace {yaml} with formatted YAML content
+	formattedYAML := fmt.Sprintf("```yaml\n%s```", string(yamlContent))
+	return strings.ReplaceAll(body, "{yaml}", formattedYAML)
 }

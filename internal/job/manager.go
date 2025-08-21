@@ -32,13 +32,14 @@ type CLIOptions struct {
 
 // Manager manages the execution of a job.
 type Manager struct {
-	config   *config.JobConfig
-	options  *CLIOptions
-	workDir  string
-	reposDir string
-	log      *log.Logger
-	exec     *command.Executor
-	pool     *worker.Pool
+	config      *config.JobConfig
+	options     *CLIOptions
+	workDir     string
+	reposDir    string
+	jobFilePath string
+	log         *log.Logger
+	exec        *command.Executor
+	pool        *worker.Pool
 }
 
 // NewManager creates a new Runner.
@@ -68,12 +69,13 @@ func NewManager(config *config.JobConfig, opts *CLIOptions, jobFilePath string) 
 	pool := worker.NewWorkerPool(opts.Workers)
 
 	return &Manager{
-		config:   config,
-		options:  opts,
-		workDir:  workDir,
-		reposDir: reposDir,
-		log:      logger,
-		exec:     exec,
-		pool:     pool,
+		config:      config,
+		options:     opts,
+		workDir:     workDir,
+		reposDir:    reposDir,
+		jobFilePath: jobFilePath,
+		log:         logger,
+		exec:        exec,
+		pool:        pool,
 	}, nil
 }

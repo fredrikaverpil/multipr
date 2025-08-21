@@ -60,7 +60,7 @@ func (m *Manager) applyChanges(repo *git.Repo) error {
 func (m *Manager) handleStagingAndCommits(repo *git.Repo) error {
 	// Stage changes first
 	if !m.options.ManualCommit {
-		_, err := m.exec.Execute("git", []string{"add", "-A"}, command.WithDir(repo.LocalPath()))
+		_, err := m.exec.Execute("git", []string{"add", "--all"}, command.WithDir(repo.LocalPath()))
 		if err != nil {
 			return fmt.Errorf("failed to stage changes for %s: %w", repo.LocalPath(), err)
 		}
