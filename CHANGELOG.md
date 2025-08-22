@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/fredrikaverpil/multipr/compare/v1.2.2...v1.3.0) (2025-08-22)
+
+
+### Features
+
+* print jobconfig with {yaml} ([#87](https://github.com/fredrikaverpil/multipr/issues/87)) ([61201ac](https://github.com/fredrikaverpil/multipr/commit/61201ac0d6a568d4f22af98bc5657b3462b00d22))
+
 ## [1.2.2](https://github.com/fredrikaverpil/multipr/compare/v1.2.1...v1.2.2) (2025-04-12)
 
 
