@@ -127,6 +127,7 @@ func (m *Manager) createNewPR(repo *git.Repo) error {
 }
 
 // processBodyTemplate replaces {yaml} placeholder with the job YAML content.
+// It preserves the indentation level of the line containing {yaml}.
 func (m *Manager) processBodyTemplate(body string) string {
 	if !strings.Contains(body, "{yaml}") {
 		return body
@@ -139,7 +140,66 @@ func (m *Manager) processBodyTemplate(body string) string {
 		return body
 	}
 
-	// Replace {yaml} with formatted YAML content
-	formattedYAML := fmt.Sprintf("```yaml\n%s```", string(yamlContent))
-	return strings.ReplaceAll(body, "{yaml}", formattedYAML)
+	// Prepare content lines split with normalized newlines
+	// Keep trailing newline behavior consistent with source
+	content := string(yamlContent)
+	// Ensure content ends with a newline, so closing fence is on its own line
+	if !strings.HasSuffix(content, "\n") {
+		content += "\n"
+	}
+
+	// Replace all occurrences while respecting per-line indentation
+	var b strings.Builder
+	lines := strings.Split(body, "\n")
+	for i, line := range lines {
+		idx := strings.Index(line, "{yaml}")
+		if idx == -1 {
+			// No placeholder on this line; write as-is
+			b.WriteString(line)
+		} else {
+			// Capture indentation (leading spaces/tabs) up to the placeholder start
+			indent := leadingWhitespace(line)
+
+			// Construct indented fenced block
+			b.WriteString(indent)
+			b.WriteString("```yaml\n")
+
+			// Indent each YAML content line
+			contentLines := strings.Split(strings.TrimSuffix(content, "\n"), "\n")
+			for j, yLine := range contentLines {
+				b.WriteString(indent)
+				b.WriteString(yLine)
+				if j < len(contentLines)-1 {
+					b.WriteByte('\n')
+				}
+			}
+			b.WriteByte('\n')
+
+			// Close fence
+			b.WriteString(indent)
+			b.WriteString("```")
+
+			// If there is any suffix after {yaml} on the same line, keep it
+			suffix := line[idx+len("{yaml}"):]
+			if len(suffix) > 0 {
+				b.WriteString(suffix)
+			}
+		}
+
+		if i < len(lines)-1 {
+			b.WriteByte('\n')
+		}
+	}
+
+	return b.String()
+}
+
+// leadingWhitespace returns the run of spaces/tabs from line start.
+func leadingWhitespace(s string) string {
+	for i, r := range s {
+		if r != ' ' && r != '\t' {
+			return s[:i]
+		}
+	}
+	return s
 }
