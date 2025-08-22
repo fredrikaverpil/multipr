@@ -1,4 +1,4 @@
-package job
+package job //nolint:testpackage // internal testing needed for unexported methods
 
 import (
 	"os"
