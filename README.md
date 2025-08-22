@@ -60,7 +60,7 @@ pr:
       ### Notes
       - This PR was generated with [multipr](https://github.com/fredrikaverpil/multipr)
       - Job yaml:
-      {yaml}
+        {yaml}
 ```
 
 > [!NOTE]
