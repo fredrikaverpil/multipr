@@ -131,6 +131,31 @@ func TestProcessBodyTemplate_MultiplePlaceholders(t *testing.T) {
 	}
 }
 
+func TestProcessBodyTemplate_PrefixBeforePlaceholder(t *testing.T) {
+	m := newManagerForTest(t, "key: value\n")
+	body := "Intro {yaml} trailing"
+	got := m.processBodyTemplate(body)
+
+	// When there's a prefix, the whole line is replaced with the code block + suffix
+	want := "```yaml\nkey: value\n``` trailing"
+	if got != want {
+		t.Fatalf("mismatch:\n--- got ---\n%s\n--- want ---\n%s", got, want)
+	}
+}
+
+func TestProcessBodyTemplate_MultiplePlaceholdersOnSameLine(t *testing.T) {
+	m := newManagerForTest(t, "a: 1\n")
+	// Only first occurrence should be replaced per line
+	// The entire line gets replaced with code block + everything after first placeholder
+	body := "Start {yaml} middle {yaml} end"
+	got := m.processBodyTemplate(body)
+
+	want := "```yaml\na: 1\n``` middle {yaml} end"
+	if got != want {
+		t.Fatalf("mismatch:\n--- got ---\n%s\n--- want ---\n%s", got, want)
+	}
+}
+
 func TestProcessBodyTemplate_NoTrailingNewlineInYAML(t *testing.T) {
 	m := newManagerForTest(t, "k: v") // no trailing newline
 	body := "{yaml}"

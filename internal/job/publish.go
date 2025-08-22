@@ -126,17 +126,20 @@ func (m *Manager) createNewPR(repo *git.Repo) error {
 	return nil
 }
 
+const yamlPlaceholder = "{yaml}"
+
 // processBodyTemplate replaces {yaml} placeholder with the job YAML content.
 // It preserves the indentation level of the line containing {yaml}.
+// Only the first occurrence of {yaml} per line is replaced.
 func (m *Manager) processBodyTemplate(body string) string {
-	if !strings.Contains(body, "{yaml}") {
+	if !strings.Contains(body, yamlPlaceholder) {
 		return body
 	}
 
 	// Read the original job file
 	yamlContent, err := os.ReadFile(m.jobFilePath)
 	if err != nil {
-		m.log.Debug("Failed to read job file for template replacement: %v", err)
+		m.log.Debug(fmt.Sprintf("Failed to read job file for template replacement: %v", err))
 		return body
 	}
 
@@ -152,12 +155,12 @@ func (m *Manager) processBodyTemplate(body string) string {
 	var b strings.Builder
 	lines := strings.Split(body, "\n")
 	for i, line := range lines {
-		idx := strings.Index(line, "{yaml}")
+		idx := strings.Index(line, yamlPlaceholder)
 		if idx == -1 {
 			// No placeholder on this line; write as-is
 			b.WriteString(line)
 		} else {
-			// Capture indentation (leading spaces/tabs) up to the placeholder start
+			// Capture indentation (leading spaces/tabs) from the line start
 			indent := leadingWhitespace(line)
 
 			// Construct indented fenced block
@@ -180,7 +183,7 @@ func (m *Manager) processBodyTemplate(body string) string {
 			b.WriteString("```")
 
 			// If there is any suffix after {yaml} on the same line, keep it
-			suffix := line[idx+len("{yaml}"):]
+			suffix := line[idx+len(yamlPlaceholder):]
 			if len(suffix) > 0 {
 				b.WriteString(suffix)
 			}
