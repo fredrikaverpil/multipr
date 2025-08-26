@@ -124,7 +124,7 @@ Usage of multipr:
 
 > [!NOTE]
 >
-> Certain features such as `-draft` is not supported in private GitHub
+> Certain features are not supported in private GitHub
 > repositories when on a free personal plan. Read more
 > [here](https://docs.github.com/en/get-started/learning-about-github/githubs-plans).
 
