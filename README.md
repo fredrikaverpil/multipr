@@ -68,8 +68,6 @@ pr:
 > - For search syntax, consult the
 >   [GitHub CLI `gh search` docs](https://cli.github.com/manual/gh_search).
 >   Search methods supported are `code` and `repos`.
-> - For repository search syntax, consult the
->   > [GitHub CLI `gh search repos` docs](https://cli.github.com/manual/gh_search_repos).
 > - The `shell` command field is optional, can be set to some other shell on a
 >   per-command basis and defaults to `bash` (or whatever you specify with CLI
 >   argument `-shell`). Will execute like `<shell> -c <cmd>`.
