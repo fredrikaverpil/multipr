@@ -129,7 +129,7 @@ Usage of multipr:
 
 ## How `multipr` works
 
-1. A user-defined GitHub `gh search code` query is the base for cloning down git
+1. A user-defined GitHub `gh search` query is the base for cloning down git
    repositories to local disk. Git repositories are cloned down into a
    `$(pwd)/jobs` folder.
 1. A user-defined local identification phase (using e.g. `find` or `rg`) decides
