@@ -162,15 +162,15 @@ Usage of multipr:
 
 ```sh
 # Spawns one `sed` command per file found by `find`
-find ./path/to/dir -type f -name '*.md' -print0 | xargs -0 sed -i 's/SEARCH/REPLACE/g'
+find ./path/to/dir -type f -name '*.ext' -print0 | xargs -0 sed -i 's/SEARCH/REPLACE/g'
 
 # Spawns one `find` command, which executes only one big `sed` command
-find ./path/to/dir -type f -name "*.md" -exec sed -i 's/SEARCH/REPLACE/g' {} +
+find ./path/to/dir -type f -name "*.ext" -exec sed -i 's/SEARCH/REPLACE/g' {} +
 ```
 
 ```sh
 # Spawns one `sed` command per file found by `rg`
-rg --files-with-matches --hidden -0 'PATTERN' ./path/to/dir --glob '*.md' | xargs -0 sed -i 's/SEARCH/REPLACE/g'
+rg --files-with-matches --hidden -0 'PATTERN' ./path/to/dir --glob '*.ext' | xargs -0 sed -i 's/SEARCH/REPLACE/g'
 ```
 
 > [!TIP]
