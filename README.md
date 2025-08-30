@@ -46,7 +46,8 @@ identify:
 changes:
   - name: Update dependabot schedule
     shell: bash # optional
-    cmd: sed -i 's/daily/weekly/g' .github/dependabot.yml
+    cmd: |
+      sed -i 's/daily/weekly/g' .github/dependabot.yml
 pr:
   github:
     branch: multipr/dependabot-interval
