@@ -161,20 +161,15 @@ Usage of multipr:
 > - BSD/macOS: `sed -E -i '' 's/foo[0-9]+/bar/g' file`
 
 ```sh
-sed -i 's/SEARCH/REPLACE/g' ./path/to/file.ext
-```
-
-```sh
-# Spawns one `sed` command per file found by `find`.
+# Spawns one `sed` command per file found by `find`
 find ./path/to/dir -type f -name '*.md' -print0 | xargs -0 sed -i 's/SEARCH/REPLACE/g'
-```
 
-```sh
-# `find` executes only one `sed` command.
+# Spawns one `find` command, which executes only one big `sed` command
 find ./path/to/dir -type f -name "*.md" -exec sed -i 's/SEARCH/REPLACE/g' {} +
 ```
 
 ```sh
+# Spawns one `sed` command per file found by `rg`
 rg --files-with-matches --hidden -0 'PATTERN' ./path/to/dir --glob '*.md' | xargs -0 sed -i 's/SEARCH/REPLACE/g'
 ```
 
