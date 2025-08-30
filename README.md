@@ -169,7 +169,7 @@ find ./path/to/dir -type f -name "*.ext" -exec sed -i 's/SEARCH/REPLACE/g' {} +
 ```
 
 ```sh
-# Spawns one `sed` command per file found by `rg`
+# Spawns one `sed` command per file found by ripgrep
 rg --files-with-matches --hidden -0 'PATTERN' ./path/to/dir --glob '*.ext' | xargs -0 sed -i 's/SEARCH/REPLACE/g'
 ```
 
