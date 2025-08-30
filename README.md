@@ -124,24 +124,65 @@ Usage of multipr:
 
 > [!NOTE]
 >
-> Certain features are not supported in private GitHub
-> repositories when on a free personal plan. Read more
+> Certain features are not supported in private GitHub repositories when on a
+> free personal plan. Read more
 > [here](https://docs.github.com/en/get-started/learning-about-github/githubs-plans).
 
 ## How `multipr` works
 
 1. A user-defined GitHub `gh search code` query is the base for cloning down git
-   repositories to local disk.
-1. Git repositories are cloned down into a `$(pwd)/jobs` folder.
-1. A user-defined local identification phase (using e.g. `rg`) decides which of
-   the cloned down repositories are eligible for modification (exit code 0 means
-   eligible).
+   repositories to local disk. Git repositories are cloned down into a
+   `$(pwd)/jobs` folder.
+1. A user-defined local identification phase (using e.g. `find` or `rg`) decides
+   which of the cloned down repositories are fully eligible for modification
+   (exit code 0 means eligible). This phase exists because it may not always be
+   possible to achieve this via `gh search`.
 1. For each eligible repository:
    - Fetch all, reset hard and checkout the default branch.
    - Check out a new user-defined branch.
    - Perform code changes via user-defined shell commands.
    - Create user-defined git commit.
    - Create (or edit existing) pull request via `gh pr [create|edit]`.
+
+## Commands for identifying and replacing file contents
+
+- All examples expect GNU `sed` (`brew install gnu-sed` for macOS). If using
+  macOS BSD `sed`, you must pass an empty string to `sed`, like: `sed -i ''`
+- Arguments like `-print0` and `-0` caters for null-delimiting filenames to
+  avoid issues where file names may contain spaces, tabs or even newlines.
+- Paths to directories can generally be substituted with `.` to search from each
+  cloned down repo's root.
+
+> [!NOTE]
+>
+> Use regex (basic regex by default; GNU sed supports `-E` for extended regex):
+>
+> - GNU (Linux): `sed -E -i 's/foo[0-9]+/bar/g' file`
+> - BSD/macOS: `sed -E -i '' 's/foo[0-9]+/bar/g' file`
+
+```sh
+sed -i 's/SEARCH/REPLACE/g' ./path/to/file.ext
+```
+
+```sh
+# Spawns one `sed` command per file found by `find`.
+find ./path/to/dir -type f -name '*.md' -print0 | xargs -0 sed -i 's/SEARCH/REPLACE/g'
+```
+
+```sh
+# `find` executes only one `sed` command.
+find ./path/to/dir -type f -name "*.md" -exec sed -i 's/SEARCH/REPLACE/g' {} +
+```
+
+```sh
+rg --files-with-matches --hidden -0 'PATTERN' ./path/to/dir --glob '*.md' | xargs -0 sed -i 's/SEARCH/REPLACE/g'
+```
+
+> [!TIP]
+>
+> You can execute a script on your machine which performs the search-replace.
+> This is especially nice when you need to apply more logic than just replacing
+> a string.
 
 ## Development and contribution
 
@@ -150,7 +191,7 @@ Usage of multipr:
 go run ./cmd/multipr -job job.yml
 ```
 
-Contributions are very welcome!
+Contributions are very welcome! ❤️
 
 ## Similar projects
 
