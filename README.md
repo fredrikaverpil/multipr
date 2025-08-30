@@ -175,9 +175,9 @@ rg --files-with-matches --hidden -0 'PATTERN' ./path/to/dir --glob '*.ext' | xar
 
 > [!TIP]
 >
-> You can execute a script on your machine which performs the search-replace.
-> This is especially nice when you need to apply more logic than just replacing
-> a string.
+> You can execute a script on your machine which performs the search-replace
+> (replace the `sed` command with e.g. `python3 script.py`. This is especially
+> nice when you need to apply more logic than just replacing a string.
 
 ## Development and contribution
 
