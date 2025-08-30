@@ -42,7 +42,7 @@ identify:
   - name: Find daily interval
     shell: bash # optional
     cmd: |
-      rg --hidden 'interval: daily' ./.github --glob 'dependabot.yml'
+      rg --hidden 'interval: daily' .github --glob 'dependabot.yml'
 changes:
   - name: Update dependabot schedule
     shell: bash # optional
