@@ -146,14 +146,14 @@ Usage of multipr:
 
 ## Commands for identifying and replacing file contents
 
-- All examples expect GNU `sed` (`brew install gnu-sed` for macOS). If using
-  macOS BSD `sed`, you must pass an empty string to `sed`, like: `sed -i ''`
-- Arguments like `-print0` and `-0` caters for null-delimiting filenames to
-  avoid issues where file names may contain spaces, tabs or even newlines.
-- Paths to directories can generally be substituted with `.` to search from each
-  cloned down repo's root.
-
 > [!NOTE]
+>
+> - All examples expect GNU `sed` (`brew install gnu-sed` for macOS). If using
+>   macOS BSD `sed`, you must pass an empty string to `sed`, like: `sed -i ''`
+> - Arguments like `-print0` and `-0` caters for null-delimiting filenames to
+>   avoid issues where file names may contain spaces, tabs or even newlines.
+> - Paths to directories can generally be substituted with `.` to search from
+>   each cloned down repo's root.
 >
 > Use regex (basic regex by default; GNU sed supports `-E` for extended regex):
 >
