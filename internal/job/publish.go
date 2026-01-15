@@ -155,8 +155,8 @@ func (m *Manager) processBodyTemplate(body string) string {
 	var b strings.Builder
 	lines := strings.Split(body, "\n")
 	for i, line := range lines {
-		idx := strings.Index(line, yamlPlaceholder)
-		if idx == -1 {
+		_, after, ok := strings.Cut(line, yamlPlaceholder)
+		if !ok {
 			// No placeholder on this line; write as-is
 			b.WriteString(line)
 		} else {
@@ -183,7 +183,7 @@ func (m *Manager) processBodyTemplate(body string) string {
 			b.WriteString("```")
 
 			// If there is any suffix after {yaml} on the same line, keep it
-			suffix := line[idx+len(yamlPlaceholder):]
+			suffix := after
 			if len(suffix) > 0 {
 				b.WriteString(suffix)
 			}
