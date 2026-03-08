@@ -1,6 +1,7 @@
 package git
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -43,20 +44,21 @@ func (r *Repo) LocalPath() string {
 	return filepath.Join(r.ReposDir, r.Host, username, repoName)
 }
 
-func (r *Repo) Clone() error {
+func (r *Repo) Clone(ctx context.Context) error {
 	if _, err := os.Stat(r.LocalPath()); err == nil {
 		r.log.Info(fmt.Sprintf("Repository already exists at %s", r.LocalPath()))
 		return nil
 	}
 
 	// TODO: switch/case on host (or use interface?)
-	return r.executor.GHClone(r.FullName, r.LocalPath())
+	return r.executor.GHClone(ctx, r.FullName, r.LocalPath())
 }
 
 // CheckoutDefaultBranch checks out the default branch and resets it.
-func (r *Repo) CheckoutDefaultBranch() error {
+func (r *Repo) CheckoutDefaultBranch(ctx context.Context) error {
 	// Use git symbolic-ref to get the default branch reference
 	result, err := r.executor.Execute(
+		ctx,
 		"git",
 		[]string{"symbolic-ref", "refs/remotes/origin/HEAD"},
 		command.WithDir(r.LocalPath()),
@@ -70,31 +72,32 @@ func (r *Repo) CheckoutDefaultBranch() error {
 	refPath := strings.TrimSpace(result.Stdout)
 	defaultBranch := strings.TrimPrefix(refPath, "refs/remotes/origin/")
 
-	if err = r.executor.GitFetchAll(r.LocalPath()); err != nil {
+	if err = r.executor.GitFetchAll(ctx, r.LocalPath()); err != nil {
 		return err
 	}
-	if err = r.executor.GitCheckout(r.LocalPath(), defaultBranch); err != nil {
+	if err = r.executor.GitCheckout(ctx, r.LocalPath(), defaultBranch); err != nil {
 		return err
 	}
-	if err = r.executor.GitResetHard(r.LocalPath(), defaultBranch); err != nil {
+	if err = r.executor.GitResetHard(ctx, r.LocalPath(), defaultBranch); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (r *Repo) ShowDiff() error {
-	return r.executor.GitDiff(r.LocalPath())
+func (r *Repo) ShowDiff(ctx context.Context) error {
+	return r.executor.GitDiff(ctx, r.LocalPath())
 }
 
 // CheckoutNewBranch creates and checks out a new branch.
-func (r *Repo) CheckoutNewBranch(branchName string) error {
-	return r.executor.GitCheckout(r.LocalPath(), branchName)
+func (r *Repo) CheckoutNewBranch(ctx context.Context, branchName string) error {
+	return r.executor.GitCheckout(ctx, r.LocalPath(), branchName)
 }
 
 // CheckPRExists checks if a PR already exists for the given branch.
-func (r *Repo) CheckPRExists(branchName string) (bool, string, error) {
+func (r *Repo) CheckPRExists(ctx context.Context, branchName string) (bool, string, error) {
 	result, err := r.executor.ExecuteWithShell(
+		ctx,
 		fmt.Sprintf("gh pr list --head %s --json number --jq '.[0].number'", branchName),
 		"",
 		command.WithDir(r.LocalPath()))
@@ -111,24 +114,24 @@ func (r *Repo) CheckPRExists(branchName string) (bool, string, error) {
 }
 
 // PushBranch pushes the current branch to the remote.
-func (r *Repo) PushBranch(branchName string) error {
-	return r.executor.GitPushForce(r.LocalPath(), branchName)
+func (r *Repo) PushBranch(ctx context.Context, branchName string) error {
+	return r.executor.GitPushForce(ctx, r.LocalPath(), branchName)
 }
 
 // CreateCommit creates a commit with the given message.
-func (r *Repo) CreateCommit(message string) error {
-	if err := r.executor.GitAddAll(r.LocalPath()); err != nil {
+func (r *Repo) CreateCommit(ctx context.Context, message string) error {
+	if err := r.executor.GitAddAll(ctx, r.LocalPath()); err != nil {
 		return err
 	}
-	if err := r.executor.GitCommit(r.LocalPath(), message); err != nil {
+	if err := r.executor.GitCommit(ctx, r.LocalPath(), message); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (r *Repo) HasChanges() (bool, error) {
-	result, err := r.executor.Execute("git", []string{"status", "--porcelain"}, command.WithDir(r.LocalPath()))
+func (r *Repo) HasChanges(ctx context.Context) (bool, error) {
+	result, err := r.executor.Execute(ctx, "git", []string{"status", "--porcelain"}, command.WithDir(r.LocalPath()))
 	if err != nil {
 		return false, fmt.Errorf("failed to check status: %w", err)
 	}

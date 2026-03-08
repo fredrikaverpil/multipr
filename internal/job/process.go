@@ -1,6 +1,7 @@
 package job
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"sync"
@@ -10,25 +11,25 @@ import (
 )
 
 // processRepository handles the changes for a single repository.
-func (m *Manager) processRepository(repo *git.Repo) error {
+func (m *Manager) processRepository(ctx context.Context, repo *git.Repo) error {
 	// Check out default branch
-	if err := repo.CheckoutDefaultBranch(); err != nil {
+	if err := repo.CheckoutDefaultBranch(ctx); err != nil {
 		return fmt.Errorf("failed to checkout default branch for %s: %w", repo.LocalPath(), err)
 	}
 
 	// Create new branch for changes
 	branchName := m.config.PR.GitHub.Branch
-	if err := repo.CheckoutNewBranch(branchName); err != nil {
+	if err := repo.CheckoutNewBranch(ctx, branchName); err != nil {
 		return fmt.Errorf("failed to create branch for %s: %w", repo.LocalPath(), err)
 	}
 
 	// Apply each change
-	if err := m.applyChanges(repo); err != nil {
+	if err := m.applyChanges(ctx, repo); err != nil {
 		return err
 	}
 
 	// Check if there are any changes
-	hasChanges, err := repo.HasChanges()
+	hasChanges, err := repo.HasChanges(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to check for changes in %s: %w", repo.LocalPath(), err)
 	}
@@ -38,7 +39,7 @@ func (m *Manager) processRepository(repo *git.Repo) error {
 	}
 
 	// Handle stages, diffs and commits
-	if err = m.handleStagingAndCommits(repo); err != nil {
+	if err = m.handleStagingAndCommits(ctx, repo); err != nil {
 		return err
 	}
 
@@ -46,9 +47,9 @@ func (m *Manager) processRepository(repo *git.Repo) error {
 }
 
 // applyChanges applies all configured changes to a repository.
-func (m *Manager) applyChanges(repo *git.Repo) error {
+func (m *Manager) applyChanges(ctx context.Context, repo *git.Repo) error {
 	for _, change := range m.config.Changes {
-		_, err := m.exec.ExecuteWithShell(change.Cmd, change.Shell, command.WithDir(repo.LocalPath()))
+		_, err := m.exec.ExecuteWithShell(ctx, change.Cmd, change.Shell, command.WithDir(repo.LocalPath()))
 		if err != nil {
 			return fmt.Errorf("failed to apply change '%s' to %s: %w", change.Name, repo.LocalPath(), err)
 		}
@@ -57,10 +58,10 @@ func (m *Manager) applyChanges(repo *git.Repo) error {
 }
 
 // handleStagingAndCommits manages the staging, diffing, and committing of changes.
-func (m *Manager) handleStagingAndCommits(repo *git.Repo) error {
+func (m *Manager) handleStagingAndCommits(ctx context.Context, repo *git.Repo) error {
 	// Stage changes first
 	if !m.options.ManualCommit {
-		_, err := m.exec.Execute("git", []string{"add", "--all"}, command.WithDir(repo.LocalPath()))
+		_, err := m.exec.Execute(ctx, "git", []string{"add", "--all"}, command.WithDir(repo.LocalPath()))
 		if err != nil {
 			return fmt.Errorf("failed to stage changes for %s: %w", repo.LocalPath(), err)
 		}
@@ -68,7 +69,7 @@ func (m *Manager) handleStagingAndCommits(repo *git.Repo) error {
 
 	// Now show the staged diff
 	if m.options.ShowDiffs {
-		err := repo.ShowDiff()
+		err := repo.ShowDiff(ctx)
 		if err != nil {
 			return fmt.Errorf("failed to show diff for %s: %w", repo.LocalPath(), err)
 		}
@@ -78,6 +79,7 @@ func (m *Manager) handleStagingAndCommits(repo *git.Repo) error {
 	if !m.options.ManualCommit {
 		// Now commit the staged changes
 		_, err := m.exec.Execute(
+			ctx,
 			"git",
 			[]string{"commit", "-m", m.config.PR.GitHub.Title},
 			command.WithDir(repo.LocalPath()),
@@ -90,7 +92,7 @@ func (m *Manager) handleStagingAndCommits(repo *git.Repo) error {
 	return nil
 }
 
-func (m *Manager) processRepositories(repos []*git.Repo) ([]*git.Repo, error) {
+func (m *Manager) processRepositories(ctx context.Context, repos []*git.Repo) ([]*git.Repo, error) {
 	m.log.Info("Processing repositories and preparing changes...")
 
 	var mu sync.Mutex
@@ -99,7 +101,7 @@ func (m *Manager) processRepositories(repos []*git.Repo) ([]*git.Repo, error) {
 
 	for _, repo := range repos {
 		m.pool.Submit(func() {
-			err := m.processRepository(repo)
+			err := m.processRepository(ctx, repo)
 			if err != nil {
 				mu.Lock()
 				errs = append(errs, err)

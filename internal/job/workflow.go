@@ -2,6 +2,7 @@ package job
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -10,36 +11,36 @@ import (
 )
 
 // RunWorkflow executes the job workflow.
-func (m *Manager) RunWorkflow() error {
+func (m *Manager) RunWorkflow(ctx context.Context) error {
 	m.logJobStart()
 
 	if err := m.handleCleanup(); err != nil {
 		return err
 	}
 
-	repos, err := m.handleRepositorySearch()
+	repos, err := m.handleRepositorySearch(ctx)
 	if err != nil {
 		return err
 	}
 
 	if len(repos) > 0 {
-		if err = m.handleRepositoryCloning(repos); err != nil {
+		if err = m.handleRepositoryCloning(ctx, repos); err != nil {
 			return err
 		}
 	}
 
-	eligibleRepos, err := m.handleEligibleRepoIdentification()
+	eligibleRepos, err := m.handleEligibleRepoIdentification(ctx)
 	if err != nil {
 		return err
 	}
 
-	processedRepos, err := m.handleRepositoryProcessing(eligibleRepos)
+	processedRepos, err := m.handleRepositoryProcessing(ctx, eligibleRepos)
 	if err != nil {
 		return err
 	}
 
 	if len(processedRepos) > 0 {
-		if err = m.handlePublishing(processedRepos); err != nil {
+		if err = m.handlePublishing(ctx, processedRepos); err != nil {
 			return err
 		}
 	}
@@ -73,7 +74,7 @@ func (m *Manager) handleCleanup() error {
 	return nil
 }
 
-func (m *Manager) handleRepositorySearch() ([]*git.Repo, error) {
+func (m *Manager) handleRepositorySearch(ctx context.Context) ([]*git.Repo, error) {
 	if m.options.SkipSearch {
 		return nil, nil
 	}
@@ -82,55 +83,55 @@ func (m *Manager) handleRepositorySearch() ([]*git.Repo, error) {
 		return nil, nil
 	}
 
-	repos, err := m.searchRepositories()
+	repos, err := m.searchRepositories(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error searching repositories: %w", err)
 	}
 	return repos, nil
 }
 
-func (m *Manager) handleRepositoryCloning(repos []*git.Repo) error {
+func (m *Manager) handleRepositoryCloning(ctx context.Context, repos []*git.Repo) error {
 	if m.options.ReviewSteps && !m.confirmStep(fmt.Sprintf("Clone down repositories to local disk? [%s]", m.reposDir)) {
 		return nil
 	}
 
-	_, err := m.cloneRepositories(repos)
+	_, err := m.cloneRepositories(ctx, repos)
 	if err != nil {
 		return fmt.Errorf("error cloning repositories: %w", err)
 	}
 	return nil
 }
 
-func (m *Manager) handleEligibleRepoIdentification() ([]*git.Repo, error) {
+func (m *Manager) handleEligibleRepoIdentification(ctx context.Context) ([]*git.Repo, error) {
 	if m.options.ReviewSteps && !m.confirmStep("Identify eligible repositories?") {
 		return nil, nil
 	}
 
-	eligibleRepos, err := m.identifyEligibleRepos(m.reposDir)
+	eligibleRepos, err := m.identifyEligibleRepos(ctx, m.reposDir)
 	if err != nil {
 		return nil, fmt.Errorf("error identifying eligible repositories: %w", err)
 	}
 	return eligibleRepos, nil
 }
 
-func (m *Manager) handleRepositoryProcessing(eligibleRepos []*git.Repo) ([]*git.Repo, error) {
+func (m *Manager) handleRepositoryProcessing(ctx context.Context, eligibleRepos []*git.Repo) ([]*git.Repo, error) {
 	if m.options.ReviewSteps && !m.confirmStep("Process desired changes in repositories?") {
 		return nil, nil
 	}
 
-	processedRepos, err := m.processRepositories(eligibleRepos)
+	processedRepos, err := m.processRepositories(ctx, eligibleRepos)
 	if err != nil {
 		return nil, fmt.Errorf("error processing repositories: %w", err)
 	}
 	return processedRepos, nil
 }
 
-func (m *Manager) handlePublishing(processedRepos []*git.Repo) error {
+func (m *Manager) handlePublishing(ctx context.Context, processedRepos []*git.Repo) error {
 	if m.options.ReviewSteps && !m.confirmStep("Publish changes as PRs?") {
 		return nil
 	}
 
-	err := m.publishRepositories(processedRepos)
+	err := m.publishRepositories(ctx, processedRepos)
 	if err != nil {
 		return fmt.Errorf("error publishing PRs: %w", err)
 	}

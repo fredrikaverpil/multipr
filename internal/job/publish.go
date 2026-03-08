@@ -1,6 +1,7 @@
 package job
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -12,7 +13,7 @@ import (
 	"github.com/fredrikaverpil/multipr/internal/git"
 )
 
-func (m *Manager) publishRepositories(repos []*git.Repo) error {
+func (m *Manager) publishRepositories(ctx context.Context, repos []*git.Repo) error {
 	var mu sync.Mutex
 	var errs []error
 
@@ -25,7 +26,7 @@ func (m *Manager) publishRepositories(repos []*git.Repo) error {
 	for _, repo := range repos {
 		m.pool.Submit(func() {
 			// Push branch to remote
-			if err := repo.PushBranch(m.config.PR.GitHub.Branch); err != nil {
+			if err := repo.PushBranch(ctx, m.config.PR.GitHub.Branch); err != nil {
 				mu.Lock()
 				errs = append(errs, fmt.Errorf("failed to push branch for %s: %w", repo.LocalPath(), err))
 				mu.Unlock()
@@ -33,7 +34,7 @@ func (m *Manager) publishRepositories(repos []*git.Repo) error {
 			}
 
 			// Check if PR already exists
-			exists, prNumber, err := repo.CheckPRExists(m.config.PR.GitHub.Branch)
+			exists, prNumber, err := repo.CheckPRExists(ctx, m.config.PR.GitHub.Branch)
 			if err != nil {
 				mu.Lock()
 				errs = append(errs, fmt.Errorf("failed to check if PR exists for %s: %w", repo.LocalPath(), err))
@@ -43,9 +44,9 @@ func (m *Manager) publishRepositories(repos []*git.Repo) error {
 
 			var processErr error
 			if exists {
-				processErr = m.updateExistingPR(repo, prNumber)
+				processErr = m.updateExistingPR(ctx, repo, prNumber)
 			} else {
-				processErr = m.createNewPR(repo)
+				processErr = m.createNewPR(ctx, repo)
 			}
 
 			if processErr != nil {
@@ -65,13 +66,14 @@ func (m *Manager) publishRepositories(repos []*git.Repo) error {
 	return nil
 }
 
-func (m *Manager) updateExistingPR(repo *git.Repo, prNumber string) error {
+func (m *Manager) updateExistingPR(ctx context.Context, repo *git.Repo, prNumber string) error {
 	repoName := filepath.Base(repo.LocalPath())
 	m.log.Info(fmt.Sprintf("Editing existing PR #%s for %s", prNumber, repoName))
 
 	processedBody := m.processBodyTemplate(m.config.PR.GitHub.Body)
 
 	_, err := m.exec.Execute(
+		ctx,
 		"gh",
 		[]string{"pr", "edit", prNumber, "--title", m.config.PR.GitHub.Title, "--body", processedBody},
 		command.WithDir(repo.LocalPath()),
@@ -89,7 +91,7 @@ func (m *Manager) updateExistingPR(repo *git.Repo, prNumber string) error {
 		draftCmd = fmt.Sprintf("gh pr ready %s", prNumber)
 	}
 
-	_, err = m.exec.ExecuteWithShell(draftCmd, "", command.WithDir(repo.LocalPath()))
+	_, err = m.exec.ExecuteWithShell(ctx, draftCmd, "", command.WithDir(repo.LocalPath()))
 	if err != nil {
 		return fmt.Errorf("failed to update PR draft status for %s: %w", repo.LocalPath(), err)
 	}
@@ -97,7 +99,7 @@ func (m *Manager) updateExistingPR(repo *git.Repo, prNumber string) error {
 	return nil
 }
 
-func (m *Manager) createNewPR(repo *git.Repo) error {
+func (m *Manager) createNewPR(ctx context.Context, repo *git.Repo) error {
 	repoName := filepath.Base(repo.LocalPath())
 	m.log.Info(fmt.Sprintf("Creating PR for %s", repoName))
 
@@ -118,7 +120,7 @@ func (m *Manager) createNewPR(repo *git.Repo) error {
 		args = append(args, "--draft")
 	}
 
-	_, err := m.exec.Execute("gh", args, command.WithDir(repo.LocalPath()))
+	_, err := m.exec.Execute(ctx, "gh", args, command.WithDir(repo.LocalPath()))
 	if err != nil {
 		return fmt.Errorf("failed to create PR for %s: %w", repo.LocalPath(), err)
 	}
