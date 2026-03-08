@@ -2,6 +2,7 @@ package command
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -35,12 +36,12 @@ func (e *Executor) ExecuteWithShell(command, shell string, opts ...Option) (*Res
 	if shell == "" {
 		shell = e.defaultShell
 	}
-	cmd := exec.Command(shell, "-c", command)
+	cmd := exec.CommandContext(context.Background(), shell, "-c", command)
 	return e.execute(cmd, opts...)
 }
 
 func (e *Executor) Execute(command string, args []string, opts ...Option) (*Result, error) {
-	cmd := exec.Command(command, args...)
+	cmd := exec.CommandContext(context.Background(), command, args...)
 	return e.execute(cmd, opts...)
 }
 
