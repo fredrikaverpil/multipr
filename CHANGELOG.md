@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.4.0](https://github.com/fredrikaverpil/multipr/compare/v1.3.0...v1.4.0) (2026-03-08)
+
+
+### Features
+
+* **go:** bump to 1.26.1 ([#107](https://github.com/fredrikaverpil/multipr/issues/107)) ([5cfc410](https://github.com/fredrikaverpil/multipr/commit/5cfc410362c246c8593bcdf6545a32854fe4f5fa))
+* migrate from Taskfile to Pocket ([#102](https://github.com/fredrikaverpil/multipr/issues/102)) ([850f20d](https://github.com/fredrikaverpil/multipr/commit/850f20dcb9fabd32c9c9b2160a9aa3f6ac45ad74))
+
+
+### Bug Fixes
+
+* context.Context from main through entire call chain ([#106](https://github.com/fredrikaverpil/multipr/issues/106)) ([cf958cb](https://github.com/fredrikaverpil/multipr/commit/cf958cb509b4716ee345611c602c11f4e741d58c))
+
 ## [1.3.0](https://github.com/fredrikaverpil/multipr/compare/v1.2.2...v1.3.0) (2025-08-22)
 
 
