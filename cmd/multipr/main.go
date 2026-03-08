@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
+	"os/signal"
 	"runtime"
+	"syscall"
 
 	"github.com/fredrikaverpil/multipr/internal/config"
 	"github.com/fredrikaverpil/multipr/internal/job"
@@ -13,6 +17,13 @@ import (
 const cpuMultiplier = 2
 
 func main() {
+	if err := run(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+}
+
+func run() error {
 	clean := flag.Bool("clean", false, "Remove cloned repositories before run")
 	debug := flag.Bool("debug", false, "Print all commands and their output")
 	draft := flag.Bool("draft", false, "Make PRs into drafts")
@@ -30,19 +41,17 @@ func main() {
 
 	if *help {
 		flag.Usage()
-		os.Exit(0)
+		return nil
 	}
 	if *jobFile == "" {
-		fmt.Fprintln(os.Stderr, "Error: job file is required")
 		flag.Usage()
-		os.Exit(1)
+		return errors.New("job file is required")
 	}
 
 	// Load configuration from YAML file
 	cfg, err := config.LoadFromFile(*jobFile)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error loading job file: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("loading job file: %w", err)
 	}
 
 	// Set default workers if auto-detection requested
@@ -65,14 +74,14 @@ func main() {
 		Workers:      *workers,
 	}
 
+	// Create context that cancels on interrupt signals
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer cancel()
+
 	// Create and run the workflow
 	r, err := job.NewManager(cfg, opts, *jobFile)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
+		return err
 	}
-	if err = r.RunWorkflow(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
-	}
+	return r.RunWorkflow(ctx)
 }

@@ -1,6 +1,7 @@
 package job
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -12,7 +13,7 @@ import (
 	"github.com/fredrikaverpil/multipr/internal/log"
 )
 
-func (m *Manager) identifyEligibleRepos(reposDir string) ([]*git.Repo, error) {
+func (m *Manager) identifyEligibleRepos(ctx context.Context, reposDir string) ([]*git.Repo, error) {
 	m.log.Info("Identifying eligible repositories...")
 
 	var mu sync.Mutex
@@ -32,7 +33,7 @@ func (m *Manager) identifyEligibleRepos(reposDir string) ([]*git.Repo, error) {
 
 	for _, repo := range repos {
 		m.pool.Submit(func() {
-			eligible, checkoutErr := m.isRepoEligible(repo)
+			eligible, checkoutErr := m.isRepoEligible(ctx, repo)
 			if checkoutErr != nil {
 				mu.Lock()
 				errs = append(errs, checkoutErr)
@@ -59,8 +60,8 @@ func (m *Manager) identifyEligibleRepos(reposDir string) ([]*git.Repo, error) {
 }
 
 // isRepoEligible checks if a repository is eligible based on identification commands.
-func (m *Manager) isRepoEligible(repo *git.Repo) (bool, error) {
-	checkoutErr := repo.CheckoutDefaultBranch()
+func (m *Manager) isRepoEligible(ctx context.Context, repo *git.Repo) (bool, error) {
+	checkoutErr := repo.CheckoutDefaultBranch(ctx)
 	if checkoutErr != nil {
 		return false, fmt.Errorf("failed to checkout default branch for %s: %w", repo.LocalPath(), checkoutErr)
 	}
@@ -72,7 +73,7 @@ func (m *Manager) isRepoEligible(repo *git.Repo) (bool, error) {
 		}
 
 		// Run identification command
-		result, cmdErr := m.exec.ExecuteWithShell(identify.Cmd, identify.Shell, command.WithDir(repo.LocalPath()))
+		result, cmdErr := m.exec.ExecuteWithShell(ctx, identify.Cmd, identify.Shell, command.WithDir(repo.LocalPath()))
 		if cmdErr != nil {
 			if result == nil {
 				return false, fmt.Errorf(

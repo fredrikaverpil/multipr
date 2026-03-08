@@ -24,6 +24,7 @@
 package command
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -38,7 +39,7 @@ const (
 )
 
 // GHAPISearchCode searches the GitHub API for code.
-func (e *Executor) GHAPISearchCode(query string) ([]string, error) {
+func (e *Executor) GHAPISearchCode(ctx context.Context, query string) ([]string, error) {
 	uniqueRepos := make(map[string]struct{})
 	page := 1
 	perPage := 30
@@ -53,6 +54,7 @@ func (e *Executor) GHAPISearchCode(query string) ([]string, error) {
 		// Use GitHub API with correct query parameter format
 		// https://docs.github.com/en/rest/search/search?apiVersion=2022-11-28#search-code
 		result, err := e.Execute(
+			ctx,
 			"gh",
 			[]string{
 				"api",
@@ -136,7 +138,7 @@ func (e *Executor) GHAPISearchCode(query string) ([]string, error) {
 	return fullNames, nil
 }
 
-func (e *Executor) GHSearchCode(query string, limit int) ([]string, error) {
+func (e *Executor) GHSearchCode(ctx context.Context, query string, limit int) ([]string, error) {
 	if limit <= 0 {
 		limit = 1000 // Default to max allowed by GitHub CLI
 	}
@@ -159,7 +161,7 @@ func (e *Executor) GHSearchCode(query string, limit int) ([]string, error) {
 	e.log.Debug(fmt.Sprintf("Executing: gh %s", strings.Join(args, " ")))
 
 	// Execute the search command
-	result, err := e.Execute("gh", args)
+	result, err := e.Execute(ctx, "gh", args)
 	if err != nil {
 		return nil, fmt.Errorf("failed to search code: %w", err)
 	}
@@ -191,7 +193,7 @@ func (e *Executor) GHSearchCode(query string, limit int) ([]string, error) {
 }
 
 // GHSearchRepos searches for repositories using the GitHub CLI.
-func (e *Executor) GHSearchRepos(query string, limit int) ([]string, error) {
+func (e *Executor) GHSearchRepos(ctx context.Context, query string, limit int) ([]string, error) {
 	if limit <= 0 {
 		limit = 1000 // Default to max allowed by GitHub CLI
 	}
@@ -214,7 +216,7 @@ func (e *Executor) GHSearchRepos(query string, limit int) ([]string, error) {
 	e.log.Debug(fmt.Sprintf("Executing: gh %s", strings.Join(args, " ")))
 
 	// Execute the search command
-	result, err := e.Execute("gh", args)
+	result, err := e.Execute(ctx, "gh", args)
 	if err != nil {
 		return nil, fmt.Errorf("failed to search repositories: %w", err)
 	}
@@ -238,8 +240,8 @@ func (e *Executor) GHSearchRepos(query string, limit int) ([]string, error) {
 }
 
 // GHClone clones the repo using gh, expects repo to be in the format "owner/repo".
-func (e *Executor) GHClone(repo, path string) error {
-	_, err := e.Execute("gh", []string{"repo", "clone", repo, path})
+func (e *Executor) GHClone(ctx context.Context, repo, path string) error {
+	_, err := e.Execute(ctx, "gh", []string{"repo", "clone", repo, path})
 	if err != nil {
 		return fmt.Errorf("failed to clone repository: %w", err)
 	}

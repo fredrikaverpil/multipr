@@ -32,16 +32,16 @@ func NewExecutor(debug bool, defaultShell string, logger *log.Logger) *Executor 
 	return &Executor{debug: debug, defaultShell: defaultShell, log: logger}
 }
 
-func (e *Executor) ExecuteWithShell(command, shell string, opts ...Option) (*Result, error) {
+func (e *Executor) ExecuteWithShell(ctx context.Context, command, shell string, opts ...Option) (*Result, error) {
 	if shell == "" {
 		shell = e.defaultShell
 	}
-	cmd := exec.CommandContext(context.Background(), shell, "-c", command)
+	cmd := exec.CommandContext(ctx, shell, "-c", command)
 	return e.execute(cmd, opts...)
 }
 
-func (e *Executor) Execute(command string, args []string, opts ...Option) (*Result, error) {
-	cmd := exec.CommandContext(context.Background(), command, args...)
+func (e *Executor) Execute(ctx context.Context, command string, args []string, opts ...Option) (*Result, error) {
+	cmd := exec.CommandContext(ctx, command, args...)
 	return e.execute(cmd, opts...)
 }
 

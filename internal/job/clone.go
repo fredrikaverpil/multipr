@@ -1,6 +1,7 @@
 package job
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -9,7 +10,7 @@ import (
 	"github.com/fredrikaverpil/multipr/internal/git"
 )
 
-func (m *Manager) cloneRepositories(repos []*git.Repo) ([]*git.Repo, error) {
+func (m *Manager) cloneRepositories(ctx context.Context, repos []*git.Repo) ([]*git.Repo, error) {
 	var mu sync.Mutex
 	var clonedRepos []*git.Repo
 	var errs []error
@@ -32,7 +33,7 @@ func (m *Manager) cloneRepositories(repos []*git.Repo) ([]*git.Repo, error) {
 	for _, repo := range reposToClone {
 		m.pool.Submit(func() {
 			m.log.Info(fmt.Sprintf("Cloning repository %s...", repo.String()))
-			if err := repo.Clone(); err != nil {
+			if err := repo.Clone(ctx); err != nil {
 				mu.Lock()
 				errs = append(errs, fmt.Errorf("failed to clone %s: %w", repo.FullName, err))
 				mu.Unlock()
@@ -40,7 +41,7 @@ func (m *Manager) cloneRepositories(repos []*git.Repo) ([]*git.Repo, error) {
 				return
 			}
 
-			if err := repo.CheckoutDefaultBranch(); err != nil {
+			if err := repo.CheckoutDefaultBranch(ctx); err != nil {
 				mu.Lock()
 				errs = append(errs, fmt.Errorf("failed to checkout default branch for %s: %w", repo.FullName, err))
 				mu.Unlock()

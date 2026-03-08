@@ -1,13 +1,14 @@
 package job
 
 import (
+	"context"
 	"fmt"
 	"os"
 
 	"github.com/fredrikaverpil/multipr/internal/git"
 )
 
-func (m *Manager) searchRepositories() ([]*git.Repo, error) {
+func (m *Manager) searchRepositories(ctx context.Context) ([]*git.Repo, error) {
 	if err := os.MkdirAll(m.reposDir, DefaultFilePerms); err != nil {
 		return nil, fmt.Errorf("failed to create repositories directory: %w", err)
 	}
@@ -24,9 +25,9 @@ func (m *Manager) searchRepositories() ([]*git.Repo, error) {
 
 		switch method {
 		case "code":
-			fullNames, err = m.exec.GHSearchCode(query, 0)
+			fullNames, err = m.exec.GHSearchCode(ctx, query, 0)
 		case "repos":
-			fullNames, err = m.exec.GHSearchRepos(query, 0)
+			fullNames, err = m.exec.GHSearchRepos(ctx, query, 0)
 		default:
 			return nil, fmt.Errorf("unsupported GitHub search method: %s", method)
 		}
