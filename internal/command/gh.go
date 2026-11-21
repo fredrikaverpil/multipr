@@ -27,6 +27,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -150,13 +151,12 @@ func (e *Executor) GHSearchCode(ctx context.Context, query string, limit int) ([
 	}
 
 	// Build arguments for gh search code command
-	args := []string{
+	args := slices.Concat([]string{
 		"search",
 		"code",
 		"--json", "repository",
 		"--limit", strconv.Itoa(limit),
-	}
-	args = append(args, queryArgs...)
+	}, queryArgs)
 
 	e.log.Debug(fmt.Sprintf("Executing: gh %s", strings.Join(args, " ")))
 
@@ -205,13 +205,12 @@ func (e *Executor) GHSearchRepos(ctx context.Context, query string, limit int) (
 	}
 
 	// Build arguments for gh search repos command
-	args := []string{
+	args := slices.Concat([]string{
 		"search",
 		"repos",
 		"--json", "fullName",
 		"--limit", strconv.Itoa(limit),
-	}
-	args = append(args, queryArgs...)
+	}, queryArgs)
 
 	e.log.Debug(fmt.Sprintf("Executing: gh %s", strings.Join(args, " ")))
 
