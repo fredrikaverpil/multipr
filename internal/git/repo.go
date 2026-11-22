@@ -100,7 +100,8 @@ func (r *Repo) CheckPRExists(ctx context.Context, branchName string) (bool, stri
 		ctx,
 		fmt.Sprintf("gh pr list --head %s --json number --jq '.[0].number'", branchName),
 		"",
-		command.WithDir(r.LocalPath()))
+		command.WithDir(r.LocalPath()),
+	)
 	if err != nil {
 		return false, "", fmt.Errorf("failed to check for existing PR: %w", err)
 	}

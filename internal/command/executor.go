@@ -77,8 +77,7 @@ func (e *Executor) execute(cmd *exec.Cmd, opts ...Option) (*Result, error) {
 	}
 
 	if err != nil {
-		var exitErr *exec.ExitError
-		if errors.As(err, &exitErr) {
+		if exitErr, ok := errors.AsType[*exec.ExitError](err); ok {
 			result.ExitCode = exitErr.ExitCode()
 
 			// NOTE: the identification command can fail with exit code 1, and it can be expected.

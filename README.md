@@ -125,8 +125,8 @@ Usage of multipr:
 > [!NOTE]
 >
 > Certain features are not supported in private GitHub repositories when on a
-> free personal plan. Read more
-> [here](https://docs.github.com/en/get-started/learning-about-github/githubs-plans).
+> free personal plan. Read more about
+> [GitHub's plans](https://docs.github.com/en/get-started/learning-about-github/githubs-plans).
 
 ## How `multipr` works
 
@@ -184,6 +184,20 @@ rg --files-with-matches --hidden -0 'PATTERN' ./path/to/dir --glob '*.ext' | xar
 ```sh
 # compile and run
 go run ./cmd/multipr -job job.yml
+```
+
+This project uses [mise](https://mise.jdx.dev) to run linting, formatting, and
+tests.
+
+```sh
+# List tasks
+mise tasks
+
+# Run task
+mise run <task>
+
+# Run all checks
+mise run
 ```
 
 Contributions are very welcome! ❤️
