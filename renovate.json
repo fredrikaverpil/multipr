@@ -11,6 +11,12 @@
       "matchManagers": ["pep621"],
       "matchDepTypes": ["requires-python"],
       "enabled": false
+    },
+    {
+      "description": "cmd/govulncheck is not a module; look up the module, whose releases have the timestamps minimumReleaseAge needs",
+      "matchManagers": ["mise"],
+      "matchDepNames": ["go:golang.org/x/vuln/cmd/govulncheck"],
+      "overridePackageName": "golang.org/x/vuln"
     }
   ],
   "customManagers": [
