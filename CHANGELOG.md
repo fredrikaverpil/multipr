@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/fredrikaverpil/multipr/compare/v1.4.0...v1.4.1) (2026-11-23)
+
+
+### Bug Fixes
+
+* **renovate:** look up govulncheck by its module ([#125](https://github.com/fredrikaverpil/multipr/issues/125)) ([679495a](https://github.com/fredrikaverpil/multipr/commit/679495a0575296922ec3db9b56501fb16a999053))
+
 ## [1.4.0](https://github.com/fredrikaverpil/multipr/compare/v1.3.0...v1.4.0) (2026-03-08)
 
 
